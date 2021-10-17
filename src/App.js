@@ -1,8 +1,8 @@
-import logo from './logo.svg'
-import './App.css'
+import React from 'react'
+import { css } from '@emotion/react'
 
 function App() {
-  return <h1>Hello World</h1>
+  return <h1 css={css({ color: 'red' })}>Hello World</h1>
 }
 
 export default App
