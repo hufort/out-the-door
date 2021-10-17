@@ -7,26 +7,33 @@ export const Flex = ({
   alignment = 'start',
   distribution = 'start',
   gap,
+  grow,
   padding,
   margin,
   ...styleProps
 }) => {
-  let flexDirection = 'column'
+  let flexDirection
 
   switch (axis) {
-    case 'vertical':
-      flexDirection = 'column'
-      break
     case 'horizontal':
       flexDirection = 'row'
       break
+    case 'vertical':
+      flexDirection = 'column'
+      break
+    default:
+      flexDirection = 'column'
+      break
   }
+
+  const flexGrow = grow ? (typeof grow === 'boolean' ? 1 : grow) : 0
 
   const styles = css({
     alignItems: alignment,
     display: 'flex',
     flexDirection,
     gap,
+    flexGrow,
     justifyContent: distribution,
     margin,
     padding,
