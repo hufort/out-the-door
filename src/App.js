@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { css } from '@emotion/react'
-import { Dropdown, Flex, Grid } from './components'
+import { Dropdown, Stack, Grid } from './components'
 
 const makeDate = () => {
   const now = new Date()
@@ -38,13 +38,13 @@ function App() {
   }
 
   return (
-    <Flex width="100%" height="100vh" position="relative">
+    <Stack width="100%" height="100vh" position="relative">
       <Header>
         <h1 css={css({ fontSize: '1rem' })}>Out the Door</h1>
         <Dropdown title="+" placement="bottom-end">
-          <Flex padding="8px">
+          <Stack padding="8px">
             <form onSubmit={createNewUser}>
-              <Flex axis="vertical" gap="4px" alignment="end">
+              <Stack axis="vertical" gap="4px" alignment="end">
                 <label htmlFor="new-user-name" />
                 <input
                   onChange={(e) => setuserName(e.target.value)}
@@ -54,21 +54,21 @@ function App() {
                   autoFocus
                 />
                 <button type="submit">Create user</button>
-              </Flex>
+              </Stack>
             </form>
-          </Flex>
+          </Stack>
         </Dropdown>
       </Header>
       <BodyGrid>
         {users &&
           users.map((user, i) => <UserContainer key={i}>{user}</UserContainer>)}
       </BodyGrid>
-    </Flex>
+    </Stack>
   )
 }
 
 const Header = ({ children }) => (
-  <Flex
+  <Stack
     alignment="center"
     axis="horizontal"
     background="white"
@@ -80,7 +80,7 @@ const Header = ({ children }) => (
     width="100%"
   >
     {children}
-  </Flex>
+  </Stack>
 )
 
 const BodyGrid = ({ children }) => (
@@ -98,9 +98,9 @@ const BodyGrid = ({ children }) => (
 )
 
 const UserContainer = ({ children }) => (
-  <Flex background="tomato" borderRadius="3px" height="15rem">
+  <Stack background="tomato" borderRadius="3px" height="15rem">
     {children}
-  </Flex>
+  </Stack>
 )
 
 export default App

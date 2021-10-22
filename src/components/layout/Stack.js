@@ -1,8 +1,10 @@
 import React from 'react'
 import { css } from '@emotion/react'
 
-export const Flex = ({
+export const Stack = ({
   children,
+  className,
+  as: As = 'div',
   axis,
   alignment = 'start',
   distribution = 'start',
@@ -32,13 +34,17 @@ export const Flex = ({
     alignItems: alignment,
     display: 'flex',
     flexDirection,
-    gap,
     flexGrow,
+    gap,
     justifyContent: distribution,
     margin,
     padding,
     ...styleProps,
   })
 
-  return <div css={styles}>{children}</div>
+  return (
+    <As className={className} css={styles}>
+      {children}
+    </As>
+  )
 }

@@ -1,3 +1,3 @@
 export { Dropdown } from './Dropdown'
-export { Flex } from './layout/Flex'
+export { Stack } from './layout/Stack'
 export { Grid } from './layout/Grid'
