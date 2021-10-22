@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { css } from '@emotion/react'
 import { Dropdown, Stack, Grid } from './components'
+import _ from 'lodash'
 
 const makeDate = () => {
   const now = new Date()
@@ -17,23 +18,28 @@ function App() {
   useEffect(() => {
     const existingUsers = localStorage.getItem('otd-users')
     if (existingUsers) {
-      console.log('existingUsers', existingUsers)
       setUsers(JSON.parse(existingUsers))
     }
   }, [])
 
   const createNewUser = () => {
     if (users) {
-      if (users.filter(userName) > -1) {
+      const preexists = _.some(
+        users,
+        (user) => user.userName.toLowerCase() === userName.toLowerCase()
+      )
+      if (preexists) {
         alert(`Oops, a user name ${userName} already exists.`)
       } else {
-        const usersUpdate = users.concat([userName])
+        const id = _(users).map('id').orderBy().last() + 1
+        const usersUpdate = users.concat([{ userName, id }])
         localStorage.setItem('otd-users', JSON.stringify(usersUpdate))
         setUsers(usersUpdate)
       }
     } else {
-      localStorage.setItem('otd-users', JSON.stringify([userName]))
-      setUsers([userName])
+      const newUsers = [{ userName, id: 1 }]
+      localStorage.setItem('otd-users', JSON.stringify(newUsers))
+      setUsers(newUsers)
     }
   }
 
@@ -61,7 +67,9 @@ function App() {
       </Header>
       <BodyGrid>
         {users &&
-          users.map((user, i) => <UserContainer key={i}>{user}</UserContainer>)}
+          users.map((user, i) => (
+            <UserContainer key={i}>{user.userName}</UserContainer>
+          ))}
       </BodyGrid>
     </Stack>
   )
