@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { usePopper } from 'react-popper'
+import { Button } from '.'
 
 export const Dropdown = ({ children, placement = 'buttom', title }) => {
   const [expanded, setExpanded] = useState(false)
@@ -22,15 +23,15 @@ export const Dropdown = ({ children, placement = 'buttom', title }) => {
 
   return (
     <>
-      <button
+      <Button
         aria-controls={menuId}
         aria-expanded={expanded}
         onClick={() => setExpanded(!expanded)}
-        ref={setToggleRef}
+        innerRef={setToggleRef}
         type="button"
       >
         {title}
-      </button>
+      </Button>
       {expanded && (
         <Menu
           attributes={attributes}
