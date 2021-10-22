@@ -28,7 +28,7 @@ function App() {
     }
   }, [])
 
-  const createNewUser = () => {
+  const createUser = () => {
     if (users) {
       const preexists = _.some(
         users,
@@ -37,8 +37,8 @@ function App() {
       if (preexists) {
         alert(`Oops, a user name ${userName} already exists.`)
       } else {
-        const id = _(users).map('id').orderBy().last() + 1
-        const usersUpdate = users.concat([{ userName, id }])
+        const maxId = _(users).map('id').orderBy().last()
+        const usersUpdate = users.concat([{ userName, id: maxId + 1 }])
         storeUsers(usersUpdate)
         setUsers(usersUpdate)
       }
@@ -66,7 +66,7 @@ function App() {
         <h1 css={css({ fontSize: '1rem' })}>Out the Door</h1>
         <Dropdown title="+" placement="bottom-end">
           <Stack padding="8px">
-            <form onSubmit={createNewUser}>
+            <form onSubmit={createUser}>
               <Stack axis="vertical" gap="4px" alignment="end">
                 <label htmlFor="new-user-name" />
                 <input
