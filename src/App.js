@@ -68,7 +68,9 @@ function App() {
       <BodyGrid>
         {users &&
           users.map((user, i) => (
-            <UserContainer key={i}>{user.userName}</UserContainer>
+            <UserContainer key={i}>
+              <p style={{ color: 'white', fontWeight: 500 }}>{user.userName}</p>
+            </UserContainer>
           ))}
       </BodyGrid>
     </Stack>
@@ -106,7 +108,7 @@ const BodyGrid = ({ children }) => (
 )
 
 const UserContainer = ({ children }) => (
-  <Stack background="tomato" borderRadius="3px" height="15rem">
+  <Stack background="tomato" borderRadius="3px" height="15rem" padding="1rem">
     {children}
   </Stack>
 )
