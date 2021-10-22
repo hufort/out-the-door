@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { css } from '@emotion/react'
-import { Dropdown, Stack, Grid } from './components'
+import { Button, Dropdown, Grid, Stack } from './components'
 import _ from 'lodash'
 
 const makeDate = () => {
@@ -11,14 +11,20 @@ const makeDate = () => {
   return `${m}/${d}/${y}`
 }
 
+const USERS_KEY = 'otd-users'
+
+const fetchUsers = () => JSON.parse(localStorage.getItem(USERS_KEY))
+const storeUsers = (users) =>
+  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+
 function App() {
   const [users, setUsers] = useState(null)
   const [userName, setuserName] = useState('')
 
   useEffect(() => {
-    const existingUsers = localStorage.getItem('otd-users')
+    const existingUsers = fetchUsers()
     if (existingUsers) {
-      setUsers(JSON.parse(existingUsers))
+      setUsers(existingUsers)
     }
   }, [])
 
@@ -33,18 +39,29 @@ function App() {
       } else {
         const id = _(users).map('id').orderBy().last() + 1
         const usersUpdate = users.concat([{ userName, id }])
-        localStorage.setItem('otd-users', JSON.stringify(usersUpdate))
+        storeUsers(usersUpdate)
         setUsers(usersUpdate)
       }
     } else {
       const newUsers = [{ userName, id: 1 }]
-      localStorage.setItem('otd-users', JSON.stringify(newUsers))
+      storeUsers(newUsers)
       setUsers(newUsers)
     }
   }
 
+  const handleDelete = (id) => {
+    const usersUpdate = _.filter(users, (user) => user.id !== id)
+    storeUsers(usersUpdate)
+    setUsers(usersUpdate)
+  }
+
   return (
-    <Stack width="100%" height="100vh" position="relative">
+    <Stack
+      width="100%"
+      height="100vh"
+      position="relative"
+      background="whitesmoke"
+    >
       <Header>
         <h1 css={css({ fontSize: '1rem' })}>Out the Door</h1>
         <Dropdown title="+" placement="bottom-end">
@@ -59,7 +76,7 @@ function App() {
                   value={userName}
                   autoFocus
                 />
-                <button type="submit">Create user</button>
+                <Button type="submit">Create user</Button>
               </Stack>
             </form>
           </Stack>
@@ -69,7 +86,18 @@ function App() {
         {users &&
           users.map((user, i) => (
             <UserContainer key={i}>
-              <p style={{ color: 'white', fontWeight: 500 }}>{user.userName}</p>
+              <p style={{ fontWeight: 500 }}>{user.userName}</p>
+              <Button
+                type="button"
+                onClick={() => {
+                  const confirmDelete = window.confirm(
+                    `Are you sure you want to delete ${user.userName}? This can not be undone.`
+                  )
+                  if (confirmDelete) handleDelete(user.id)
+                }}
+              >
+                delete
+              </Button>
             </UserContainer>
           ))}
       </BodyGrid>
@@ -81,7 +109,7 @@ const Header = ({ children }) => (
   <Stack
     alignment="center"
     axis="horizontal"
-    background="white"
+    background="whitesmoke"
     borderBottom="1px solid lightgrey"
     distribution="space-between"
     padding="1rem"
@@ -108,7 +136,16 @@ const BodyGrid = ({ children }) => (
 )
 
 const UserContainer = ({ children }) => (
-  <Stack background="tomato" borderRadius="3px" height="15rem" padding="1rem">
+  <Stack
+    axis="horizontal"
+    background="white"
+    boxShadow="rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px"
+    borderRadius="3px"
+    distribution="space-between"
+    gap="1rem"
+    height="15rem"
+    padding="1rem"
+  >
     {children}
   </Stack>
 )
