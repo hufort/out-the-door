@@ -49,7 +49,7 @@ function App() {
     }
   }
 
-  const handleDelete = (id) => {
+  const deleteUser = (id) => {
     const usersUpdate = _.filter(users, (user) => user.id !== id)
     storeUsers(usersUpdate)
     setUsers(usersUpdate)
@@ -93,7 +93,7 @@ function App() {
                   const confirmDelete = window.confirm(
                     `Are you sure you want to delete ${user.userName}? This can not be undone.`
                   )
-                  if (confirmDelete) handleDelete(user.id)
+                  if (confirmDelete) deleteUser(user.id)
                 }}
               >
                 delete
