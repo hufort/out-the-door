@@ -1,31 +1,40 @@
 import React from 'react'
 import { css } from '@emotion/react'
 
-export const Flex = ({
+export const Stack = ({
   children,
+  className,
+  as: As = 'div',
   axis,
   alignment = 'start',
   distribution = 'start',
   gap,
+  grow,
   padding,
   margin,
   ...styleProps
 }) => {
-  let flexDirection = 'column'
+  let flexDirection
 
   switch (axis) {
-    case 'vertical':
-      flexDirection = 'column'
-      break
     case 'horizontal':
       flexDirection = 'row'
       break
+    case 'vertical':
+      flexDirection = 'column'
+      break
+    default:
+      flexDirection = 'column'
+      break
   }
+
+  const flexGrow = grow ? (typeof grow === 'boolean' ? 1 : grow) : 0
 
   const styles = css({
     alignItems: alignment,
     display: 'flex',
     flexDirection,
+    flexGrow,
     gap,
     justifyContent: distribution,
     margin,
@@ -33,5 +42,9 @@ export const Flex = ({
     ...styleProps,
   })
 
-  return <div css={styles}>{children}</div>
+  return (
+    <As className={className} css={styles}>
+      {children}
+    </As>
+  )
 }
