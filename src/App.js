@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { css } from '@emotion/react'
 import { Button, Dropdown, Grid, Stack } from './components'
+import { UserPlus, UserX } from 'react-feather'
 import _ from 'lodash'
 
 const makeDate = () => {
@@ -64,7 +65,10 @@ function App() {
     >
       <Header>
         <h1 css={css({ fontSize: '1rem' })}>Out the Door</h1>
-        <Dropdown title="+" placement="bottom-end">
+        <Dropdown
+          title={<UserPlus color="white" size={16} />}
+          placement="bottom-end"
+        >
           <Stack padding="8px">
             <form onSubmit={createUser}>
               <Stack axis="vertical" gap="4px" alignment="end">
@@ -86,18 +90,25 @@ function App() {
         {users &&
           users.map((user, i) => (
             <UserContainer key={i}>
-              <p style={{ fontWeight: 500 }}>{user.userName}</p>
-              <Button
-                type="button"
-                onClick={() => {
-                  const confirmDelete = window.confirm(
-                    `Are you sure you want to delete ${user.userName}? This can not be undone.`
-                  )
-                  if (confirmDelete) deleteUser(user.id)
-                }}
-              >
-                delete
-              </Button>
+              {(isHovering) => (
+                <>
+                  <p style={{ fontWeight: 500 }}>{user.userName}</p>
+                  {isHovering && (
+                    <Button
+                      type="button"
+                      variant="naked"
+                      onClick={() => {
+                        const confirmDelete = window.confirm(
+                          `Are you sure you want to delete ${user.userName}? This can not be undone.`
+                        )
+                        if (confirmDelete) deleteUser(user.id)
+                      }}
+                    >
+                      <UserX color="#3D3D3D" size={16} />
+                    </Button>
+                  )}
+                </>
+              )}
             </UserContainer>
           ))}
       </BodyGrid>
@@ -109,8 +120,8 @@ const Header = ({ children }) => (
   <Stack
     alignment="center"
     axis="horizontal"
-    background="whitesmoke"
-    borderBottom="1px solid lightgrey"
+    background="white"
+    boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
     distribution="space-between"
     padding="1rem"
     position="sticky"
@@ -135,19 +146,25 @@ const BodyGrid = ({ children }) => (
   </Grid>
 )
 
-const UserContainer = ({ children }) => (
-  <Stack
-    axis="horizontal"
-    background="white"
-    boxShadow="rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px"
-    borderRadius="3px"
-    distribution="space-between"
-    gap="1rem"
-    height="15rem"
-    padding="1rem"
-  >
-    {children}
-  </Stack>
-)
+const UserContainer = ({ children }) => {
+  const [isHovering, setIsHovering] = useState(false)
+
+  return (
+    <Stack
+      axis="horizontal"
+      background="white"
+      boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
+      borderRadius="3px"
+      distribution="space-between"
+      gap="1rem"
+      height="15rem"
+      padding="1rem"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {typeof children === 'function' ? children(isHovering) : children}
+    </Stack>
+  )
+}
 
 export default App
