@@ -2,16 +2,19 @@ import React from 'react'
 import { css } from '@emotion/react'
 
 export const Stack = ({
-  children,
-  className,
+  alignment = 'start',
   as: As = 'div',
   axis,
-  alignment = 'start',
+  children,
+  className,
   distribution = 'start',
   gap,
   grow,
-  padding,
+  innerRef,
   margin,
+  padding,
+  onMouseEnter,
+  onMouseLeave,
   ...styleProps
 }) => {
   let flexDirection
@@ -30,7 +33,7 @@ export const Stack = ({
 
   const flexGrow = grow ? (typeof grow === 'boolean' ? 1 : grow) : 0
 
-  const styles = css({
+  const Stack = css({
     alignItems: alignment,
     display: 'flex',
     flexDirection,
@@ -43,7 +46,13 @@ export const Stack = ({
   })
 
   return (
-    <As className={className} css={styles}>
+    <As
+      className={className}
+      css={Stack}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={innerRef}
+    >
       {children}
     </As>
   )

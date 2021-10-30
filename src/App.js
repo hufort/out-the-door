@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { css } from '@emotion/react'
-import { Dropdown, Stack, Grid } from './components'
+import { Button, Dropdown, Grid, Stack } from './components'
+import { Check, Plus, UserPlus, UserX } from 'react-feather'
 import _ from 'lodash'
 
 const makeDate = () => {
@@ -11,18 +12,24 @@ const makeDate = () => {
   return `${m}/${d}/${y}`
 }
 
+const USERS_KEY = 'otd-users'
+
+const fetchUsers = () => JSON.parse(localStorage.getItem(USERS_KEY))
+const storeUsers = (users) =>
+  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+
 function App() {
   const [users, setUsers] = useState(null)
   const [userName, setuserName] = useState('')
 
   useEffect(() => {
-    const existingUsers = localStorage.getItem('otd-users')
+    const existingUsers = fetchUsers()
     if (existingUsers) {
-      setUsers(JSON.parse(existingUsers))
+      setUsers(existingUsers)
     }
   }, [])
 
-  const createNewUser = () => {
+  const createUser = () => {
     if (users) {
       const preexists = _.some(
         users,
@@ -31,26 +38,40 @@ function App() {
       if (preexists) {
         alert(`Oops, a user name ${userName} already exists.`)
       } else {
-        const id = _(users).map('id').orderBy().last() + 1
-        const usersUpdate = users.concat([{ userName, id }])
-        localStorage.setItem('otd-users', JSON.stringify(usersUpdate))
+        const maxId = _(users).map('id').orderBy().last()
+        const usersUpdate = users.concat([{ userName, id: maxId + 1 }])
+        storeUsers(usersUpdate)
         setUsers(usersUpdate)
       }
     } else {
       const newUsers = [{ userName, id: 1 }]
-      localStorage.setItem('otd-users', JSON.stringify(newUsers))
+      storeUsers(newUsers)
       setUsers(newUsers)
     }
   }
 
+  const deleteUser = (id) => {
+    const usersUpdate = _.filter(users, (user) => user.id !== id)
+    storeUsers(usersUpdate)
+    setUsers(usersUpdate)
+  }
+
   return (
-    <Stack width="100%" height="100vh" position="relative">
+    <Stack
+      width="100%"
+      height="100vh"
+      position="relative"
+      background="whitesmoke"
+    >
       <Header>
         <h1 css={css({ fontSize: '1rem' })}>Out the Door</h1>
-        <Dropdown title="+" placement="bottom-end">
+        <Dropdown
+          title={<UserPlus color="white" size={16} />}
+          placement="bottom-end"
+        >
           <Stack padding="8px">
-            <form onSubmit={createNewUser}>
-              <Stack axis="vertical" gap="4px" alignment="end">
+            <form onSubmit={createUser}>
+              <Stack axis="vertical" gap="8px" alignment="end">
                 <label htmlFor="new-user-name" />
                 <input
                   onChange={(e) => setuserName(e.target.value)}
@@ -58,8 +79,11 @@ function App() {
                   type="text"
                   value={userName}
                   autoFocus
+                  style={{ padding: '4px 8px' }}
                 />
-                <button type="submit">Create user</button>
+                <Button type="submit">
+                  <Check color="white" size={16} />
+                </Button>
               </Stack>
             </form>
           </Stack>
@@ -69,7 +93,25 @@ function App() {
         {users &&
           users.map((user, i) => (
             <UserContainer key={i}>
-              <p style={{ color: 'white', fontWeight: 500 }}>{user.userName}</p>
+              {(isHovering) => (
+                <>
+                  <p style={{ fontWeight: 500 }}>{user.userName}</p>
+                  {isHovering && (
+                    <Button
+                      type="button"
+                      variant="naked"
+                      onClick={() => {
+                        const confirmDelete = window.confirm(
+                          `Are you sure you want to delete ${user.userName}? This can not be undone.`
+                        )
+                        if (confirmDelete) deleteUser(user.id)
+                      }}
+                    >
+                      <UserX color="#3D3D3D" size={16} />
+                    </Button>
+                  )}
+                </>
+              )}
             </UserContainer>
           ))}
       </BodyGrid>
@@ -82,7 +124,7 @@ const Header = ({ children }) => (
     alignment="center"
     axis="horizontal"
     background="white"
-    borderBottom="1px solid lightgrey"
+    boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
     distribution="space-between"
     padding="1rem"
     position="sticky"
@@ -107,10 +149,25 @@ const BodyGrid = ({ children }) => (
   </Grid>
 )
 
-const UserContainer = ({ children }) => (
-  <Stack background="tomato" borderRadius="3px" height="15rem" padding="1rem">
-    {children}
-  </Stack>
-)
+const UserContainer = ({ children }) => {
+  const [isHovering, setIsHovering] = useState(false)
+
+  return (
+    <Stack
+      axis="horizontal"
+      background="white"
+      boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
+      borderRadius="3px"
+      distribution="space-between"
+      gap="1rem"
+      height="15rem"
+      padding="1rem"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {typeof children === 'function' ? children(isHovering) : children}
+    </Stack>
+  )
+}
 
 export default App
