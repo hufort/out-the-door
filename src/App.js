@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { css } from '@emotion/react'
 import { Button, Dropdown, Grid, Stack } from './components'
-import { UserPlus, UserX } from 'react-feather'
+import { Check, Plus, UserPlus, UserX } from 'react-feather'
 import _ from 'lodash'
 
 const makeDate = () => {
@@ -71,7 +71,7 @@ function App() {
         >
           <Stack padding="8px">
             <form onSubmit={createUser}>
-              <Stack axis="vertical" gap="4px" alignment="end">
+              <Stack axis="vertical" gap="8px" alignment="end">
                 <label htmlFor="new-user-name" />
                 <input
                   onChange={(e) => setuserName(e.target.value)}
@@ -79,8 +79,11 @@ function App() {
                   type="text"
                   value={userName}
                   autoFocus
+                  style={{ padding: '4px 8px' }}
                 />
-                <Button type="submit">Create user</Button>
+                <Button type="submit">
+                  <Check color="white" size={16} />
+                </Button>
               </Stack>
             </form>
           </Stack>
