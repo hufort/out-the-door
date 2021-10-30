@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { css } from '@emotion/react'
-import { Button, Dropdown, Grid, Stack } from './components'
-import { Check, Plus, UserPlus, UserX } from 'react-feather'
 import _ from 'lodash'
+import { Check, UserPlus, UserX } from 'react-feather'
+import { Button, Dropdown, Grid, Stack } from './components'
+import { fetchUsers, storeUsers } from './api'
 
 const makeDate = () => {
   const now = new Date()
@@ -11,12 +12,6 @@ const makeDate = () => {
   const y = now.getFullYear()
   return `${m}/${d}/${y}`
 }
-
-const USERS_KEY = 'otd-users'
-
-const fetchUsers = () => JSON.parse(localStorage.getItem(USERS_KEY))
-const storeUsers = (users) =>
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
 
 function App() {
   const [users, setUsers] = useState(null)
