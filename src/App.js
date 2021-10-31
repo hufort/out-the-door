@@ -24,7 +24,7 @@ function App() {
     }
   }, [])
 
-  const createUser = () => {
+  const handleCreateUser = () => {
     if (users) {
       const preexists = _.some(
         users,
@@ -45,7 +45,7 @@ function App() {
     }
   }
 
-  const deleteUser = (id) => {
+  const handleDeleteUser = (id) => {
     const usersUpdate = _.filter(users, (user) => user.id !== id)
     storeUsers(usersUpdate)
     setUsers(usersUpdate)
@@ -65,7 +65,7 @@ function App() {
           placement="bottom-end"
         >
           <Stack padding="8px">
-            <form onSubmit={createUser}>
+            <form onSubmit={handleCreateUser}>
               <Stack axis="vertical" gap="8px" alignment="end">
                 <label htmlFor="new-user-name" />
                 <input
@@ -99,7 +99,7 @@ function App() {
                         const confirmDelete = window.confirm(
                           `Are you sure you want to delete ${user.userName}? This can not be undone.`
                         )
-                        if (confirmDelete) deleteUser(user.id)
+                        if (confirmDelete) handleDeleteUser(user.id)
                       }}
                     >
                       <UserX color="#3D3D3D" size={16} />
