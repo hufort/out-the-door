@@ -33,7 +33,7 @@ export const Stack = ({
 
   const flexGrow = grow ? (typeof grow === 'boolean' ? 1 : grow) : 0
 
-  const Stack = css({
+  const Stack = {
     alignItems: alignment,
     display: 'flex',
     flexDirection,
@@ -43,7 +43,7 @@ export const Stack = ({
     margin,
     padding,
     ...styleProps,
-  })
+  }
 
   return (
     <As

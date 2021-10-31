@@ -30,7 +30,7 @@ export const Button = ({
     }
   }
 
-  const Button = css({
+  const Button = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -49,7 +49,7 @@ export const Button = ({
       opacity: 1,
     },
     ...getVariant(variant),
-  })
+  }
 
   return (
     <button

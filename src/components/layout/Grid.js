@@ -14,7 +14,7 @@ export const Grid = ({
   const childCount = React.Children.count(children)
   const gridTemplateColumns = columns ? columns : `repeat(${childCount}, 1fr)`
 
-  const Grid = css({
+  const Grid = {
     alignItems: alignment,
     display: 'grid',
     gap,
@@ -23,7 +23,7 @@ export const Grid = ({
     margin,
     padding,
     ...styleProps,
-  })
+  }
 
   return <div css={Grid}>{children}</div>
 }
