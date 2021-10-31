@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react'
-import { css } from '@emotion/react'
+import React, { useEffect, useState, useReducer } from 'react'
 import _ from 'lodash'
-import { Check, UserPlus, UserX } from 'react-feather'
+import { Check, UserPlus } from 'react-feather'
 import { Button, Dropdown, Grid, Stack } from './components'
 import { fetchUsers, storeUsers } from './api'
 
 // DND
-import { DndContext, useDroppable } from '@dnd-kit/core'
+import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
 
 const makeDate = () => {
   const now = new Date()
   const m = now.getMonth()
   const d = now.getDate()
   const y = now.getFullYear()
-  return `${m}/${d}/${y}`
+  return `${m}${d}${y}`
 }
 
 const TASKS = [
@@ -27,7 +27,8 @@ const TASKS = [
 
 function App() {
   const [users, setUsers] = useState(null)
-  const [name, setuserName] = useState('')
+  console.log('users', users)
+  const [name, setName] = useState('')
 
   useEffect(() => {
     const existingUsers = fetchUsers()
@@ -63,8 +64,16 @@ function App() {
     setUsers(usersUpdate)
   }
 
+  const handleDragEnd = (event) => {
+    if (event.over) {
+      console.log('event', event)
+      const userId = event.over.id.split('-').pop()
+      setUserDayTasks
+    }
+  }
+
   return (
-    <DndContext>
+    <DndContext onDragEnd={handleDragEnd}>
       <Stack
         width="100%"
         height="100vh"
@@ -82,7 +91,7 @@ function App() {
                 <Stack axis="vertical" gap="8px" alignment="end">
                   <label htmlFor="new-user-name" />
                   <input
-                    onChange={(e) => setuserName(e.target.value)}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="Name"
                     type="text"
                     value={name}
@@ -109,7 +118,14 @@ function App() {
           <TaskSidebar tasks={TASKS} />
           <BodyGrid>
             {users &&
-              users.map((user) => <UserContainer key={user.id} user={user} />)}
+              users.map((user) => (
+                <UserContainer
+                  key={user.id}
+                  user={user}
+                  users={users}
+                  setUsers={setUsers}
+                />
+              ))}
           </BodyGrid>
         </Stack>
       </Stack>
@@ -142,21 +158,40 @@ const TaskSidebar = ({ tasks }) => (
     padding="0 1rem"
   >
     {tasks.map((task) => (
-      <Stack
-        width="3rem"
-        height="3rem"
-        background="white"
-        alignment="center"
-        distribution="center"
-        borderRadius="3px"
-        boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
-        key={task.id}
-      >
-        <p css={{ fontSize: '1.5rem' }}>{task.icon}</p>
-      </Stack>
+      <TaskTile key={task.id} task={task} />
     ))}
   </Stack>
 )
+
+const TaskTile = ({ task }) => {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: `draggable-task-id-${task.id}`,
+  })
+
+  const TaskTile = {
+    transform: CSS.Translate.toString(transform),
+  }
+
+  return (
+    <Stack
+      alignment="center"
+      background="white"
+      borderRadius="3px"
+      boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
+      css={TaskTile}
+      distribution="center"
+      height="3rem"
+      innerRef={setNodeRef}
+      key={task.id}
+      width="3rem"
+      cursor="grab"
+      {...listeners}
+      {...attributes}
+    >
+      <p css={{ fontSize: '1.5rem' }}>{task.icon}</p>
+    </Stack>
+  )
+}
 
 const BodyGrid = ({ children }) => (
   <Grid
@@ -171,15 +206,14 @@ const BodyGrid = ({ children }) => (
   </Grid>
 )
 
-const UserContainer = ({ children, user }) => {
-  const [isHovering, setIsHovering] = useState(false)
+const UserContainer = ({ user }) => {
   const { isOver, setNodeRef } = useDroppable({
-    id: 'droppable',
+    id: `droppable-user-id-${user.id}`,
   })
 
   return (
     <Stack
-      axis="horizontal"
+      axis="vertical"
       background="white"
       boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
       borderRadius="3px"
@@ -187,24 +221,21 @@ const UserContainer = ({ children, user }) => {
       gap="1rem"
       height="15rem"
       padding="1rem"
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
     >
       <p style={{ fontWeight: 500 }}>{user.name}</p>
-      {isHovering && (
-        <Button
-          type="button"
-          variant="naked"
-          onClick={() => {
-            const confirmDelete = window.confirm(
-              `Are you sure you want to delete ${user.name}? This can not be undone.`
-            )
-            if (confirmDelete) handleDeleteUser(user.id)
-          }}
-        >
-          <UserX color="#3D3D3D" size={16} />
-        </Button>
-      )}
+      <Stack
+        axis="horizontal"
+        gap="1rem"
+        innerRef={setNodeRef}
+        css={{
+          borderColor: isOver ? 'darkseagreen' : 'transparent',
+          borderRadius: '3px',
+          borderStyle: 'solid',
+          borderWidth: '2px',
+          height: '4rem',
+          width: '100%',
+        }}
+      ></Stack>
     </Stack>
   )
 }
