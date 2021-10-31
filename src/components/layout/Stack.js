@@ -5,17 +5,46 @@ export const Stack = ({
   alignment = 'start',
   as: As = 'div',
   axis,
+  background,
+  border,
+  borderColor,
+  borderRadius,
+  borderStyle,
+  borderWidth,
+  bottom,
+  boxShadow,
   children,
   className,
+  cursor,
   distribution = 'start',
+  flex,
+  flexShrink,
   gap,
   grow,
+  height,
   innerRef,
+  left,
   margin,
-  padding,
+  marginBottom,
+  marginLeft,
+  marginRight,
+  marginTop,
+  maxHeight,
+  maxWidth,
+  minHeight,
+  minWidth,
   onMouseEnter,
   onMouseLeave,
-  ...styleProps
+  padding,
+  paddingBottom,
+  paddingLeft,
+  paddingRight,
+  paddingTop,
+  position,
+  right,
+  top,
+  width,
+  ...restProps
 }) => {
   let flexDirection
 
@@ -35,14 +64,42 @@ export const Stack = ({
 
   const Stack = {
     alignItems: alignment,
+    background,
+    border,
+    borderColor,
+    borderRadius,
+    borderStyle,
+    borderWidth,
+    bottom,
+    boxShadow,
+    cursor,
     display: 'flex',
+    flex,
     flexDirection,
     flexGrow,
+    flexShrink,
     gap,
+    height,
     justifyContent: distribution,
+    left,
     margin,
+    marginBottom,
+    marginLeft,
+    marginRight,
+    marginTop,
+    maxHeight,
+    maxWidth,
+    minHeight,
+    minWidth,
     padding,
-    ...styleProps,
+    paddingBottom,
+    paddingLeft,
+    paddingRight,
+    paddingTop,
+    position,
+    right,
+    top,
+    width,
   }
 
   return (
@@ -52,6 +109,7 @@ export const Stack = ({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       ref={innerRef}
+      {...restProps}
     >
       {children}
     </As>
