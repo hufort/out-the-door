@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { css } from '@emotion/react'
-import { Button, Dropdown, Grid, Stack } from './components'
-import { Check, Plus, UserPlus, UserX } from 'react-feather'
 import _ from 'lodash'
+import { Check, UserPlus, UserX } from 'react-feather'
+import { Button, Dropdown, Grid, Stack } from './components'
+import { fetchUsers, storeUsers } from './api'
 
 const makeDate = () => {
   const now = new Date()
@@ -11,12 +12,6 @@ const makeDate = () => {
   const y = now.getFullYear()
   return `${m}/${d}/${y}`
 }
-
-const USERS_KEY = 'otd-users'
-
-const fetchUsers = () => JSON.parse(localStorage.getItem(USERS_KEY))
-const storeUsers = (users) =>
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
 
 function App() {
   const [users, setUsers] = useState(null)
@@ -29,7 +24,7 @@ function App() {
     }
   }, [])
 
-  const createUser = () => {
+  const handleCreateUser = () => {
     if (users) {
       const preexists = _.some(
         users,
@@ -50,7 +45,7 @@ function App() {
     }
   }
 
-  const deleteUser = (id) => {
+  const handleDeleteUser = (id) => {
     const usersUpdate = _.filter(users, (user) => user.id !== id)
     storeUsers(usersUpdate)
     setUsers(usersUpdate)
@@ -70,7 +65,7 @@ function App() {
           placement="bottom-end"
         >
           <Stack padding="8px">
-            <form onSubmit={createUser}>
+            <form onSubmit={handleCreateUser}>
               <Stack axis="vertical" gap="8px" alignment="end">
                 <label htmlFor="new-user-name" />
                 <input
@@ -104,7 +99,7 @@ function App() {
                         const confirmDelete = window.confirm(
                           `Are you sure you want to delete ${user.userName}? This can not be undone.`
                         )
-                        if (confirmDelete) deleteUser(user.id)
+                        if (confirmDelete) handleDeleteUser(user.id)
                       }}
                     >
                       <UserX color="#3D3D3D" size={16} />
