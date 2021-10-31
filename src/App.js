@@ -5,6 +5,9 @@ import { Check, UserPlus, UserX } from 'react-feather'
 import { Button, Dropdown, Grid, Stack } from './components'
 import { fetchUsers, storeUsers } from './api'
 
+// DND
+import { DndContext, useDroppable } from '@dnd-kit/core'
+
 const makeDate = () => {
   const now = new Date()
   const m = now.getMonth()
@@ -13,9 +16,18 @@ const makeDate = () => {
   return `${m}/${d}/${y}`
 }
 
+const TASKS = [
+  { id: 1, title: 'Make bed', icon: '🛏' },
+  { id: 2, title: 'Get dressed', icon: '👕' },
+  { id: 3, title: 'Backpack', icon: '🎒' },
+  { id: 4, title: 'Water bottle', icon: '💧' },
+  { id: 5, title: 'Lunch', icon: '🍱' },
+  { id: 6, title: 'Shoes', icon: '👟' },
+]
+
 function App() {
   const [users, setUsers] = useState(null)
-  const [userName, setuserName] = useState('')
+  const [name, setuserName] = useState('')
 
   useEffect(() => {
     const existingUsers = fetchUsers()
@@ -28,18 +40,18 @@ function App() {
     if (users) {
       const preexists = _.some(
         users,
-        (user) => user.userName.toLowerCase() === userName.toLowerCase()
+        (user) => user.name.toLowerCase() === name.toLowerCase()
       )
       if (preexists) {
-        alert(`Oops, a user name ${userName} already exists.`)
+        alert(`Oops, a user named ${name} already exists.`)
       } else {
         const maxId = _(users).map('id').orderBy().last()
-        const usersUpdate = users.concat([{ userName, id: maxId + 1 }])
+        const usersUpdate = users.concat([{ name, id: maxId + 1 }])
         storeUsers(usersUpdate)
         setUsers(usersUpdate)
       }
     } else {
-      const newUsers = [{ userName, id: 1 }]
+      const newUsers = [{ name, id: 1 }]
       storeUsers(newUsers)
       setUsers(newUsers)
     }
@@ -52,65 +64,56 @@ function App() {
   }
 
   return (
-    <Stack
-      width="100%"
-      height="100vh"
-      position="relative"
-      background="whitesmoke"
-    >
-      <Header>
-        <h1 css={css({ fontSize: '1rem' })}>Out the Door</h1>
-        <Dropdown
-          title={<UserPlus color="white" size={16} />}
-          placement="bottom-end"
+    <DndContext>
+      <Stack
+        width="100%"
+        height="100vh"
+        position="relative"
+        background="whitesmoke"
+      >
+        <Header>
+          <h1 css={{ fontSize: '1rem' }}>Out the Door</h1>
+          <Dropdown
+            title={<UserPlus color="white" size={16} />}
+            placement="bottom-end"
+          >
+            <Stack padding="8px">
+              <form onSubmit={handleCreateUser}>
+                <Stack axis="vertical" gap="8px" alignment="end">
+                  <label htmlFor="new-user-name" />
+                  <input
+                    onChange={(e) => setuserName(e.target.value)}
+                    placeholder="Name"
+                    type="text"
+                    value={name}
+                    autoFocus
+                    style={{ padding: '4px 8px' }}
+                  />
+                  <Button type="submit">
+                    <Check color="white" size={16} />
+                  </Button>
+                </Stack>
+              </form>
+            </Stack>
+          </Dropdown>
+        </Header>
+        <Stack
+          axis="horizontal"
+          minHeight="100%"
+          minWidth="0px"
+          flex={1}
+          width="100%"
+          padding="1rem"
+          gap="1rem"
         >
-          <Stack padding="8px">
-            <form onSubmit={handleCreateUser}>
-              <Stack axis="vertical" gap="8px" alignment="end">
-                <label htmlFor="new-user-name" />
-                <input
-                  onChange={(e) => setuserName(e.target.value)}
-                  placeholder="Name"
-                  type="text"
-                  value={userName}
-                  autoFocus
-                  style={{ padding: '4px 8px' }}
-                />
-                <Button type="submit">
-                  <Check color="white" size={16} />
-                </Button>
-              </Stack>
-            </form>
-          </Stack>
-        </Dropdown>
-      </Header>
-      <BodyGrid>
-        {users &&
-          users.map((user, i) => (
-            <UserContainer key={i}>
-              {(isHovering) => (
-                <>
-                  <p style={{ fontWeight: 500 }}>{user.userName}</p>
-                  {isHovering && (
-                    <Button
-                      type="button"
-                      variant="naked"
-                      onClick={() => {
-                        const confirmDelete = window.confirm(
-                          `Are you sure you want to delete ${user.userName}? This can not be undone.`
-                        )
-                        if (confirmDelete) handleDeleteUser(user.id)
-                      }}
-                    >
-                      <UserX color="#3D3D3D" size={16} />
-                    </Button>
-                  )}
-                </>
-              )}
-            </UserContainer>
-          ))}
-      </BodyGrid>
-    </Stack>
+          <TaskSidebar tasks={TASKS} />
+          <BodyGrid>
+            {users &&
+              users.map((user) => <UserContainer key={user.id} user={user} />)}
+          </BodyGrid>
+        </Stack>
+      </Stack>
+    </DndContext>
   )
 }
 
@@ -130,22 +133,49 @@ const Header = ({ children }) => (
   </Stack>
 )
 
+const TaskSidebar = ({ tasks }) => (
+  <Stack
+    axis="vertical"
+    borderRadius="3px"
+    distribution="space-between"
+    gap="1rem"
+    padding="0 1rem"
+  >
+    {tasks.map((task) => (
+      <Stack
+        width="3rem"
+        height="3rem"
+        background="white"
+        alignment="center"
+        distribution="center"
+        borderRadius="3px"
+        boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
+        key={task.id}
+      >
+        <p css={{ fontSize: '1.5rem' }}>{task.icon}</p>
+      </Stack>
+    ))}
+  </Stack>
+)
+
 const BodyGrid = ({ children }) => (
   <Grid
-    columns="1fr 1fr"
+    columns="1fr"
     gap="1rem"
     gridAutoRows="max-content"
-    grow
+    flex={1}
     height="100%"
-    padding="1rem"
     width="100%"
   >
     {children}
   </Grid>
 )
 
-const UserContainer = ({ children }) => {
+const UserContainer = ({ children, user }) => {
   const [isHovering, setIsHovering] = useState(false)
+  const { isOver, setNodeRef } = useDroppable({
+    id: 'droppable',
+  })
 
   return (
     <Stack
@@ -160,7 +190,21 @@ const UserContainer = ({ children }) => {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {typeof children === 'function' ? children(isHovering) : children}
+      <p style={{ fontWeight: 500 }}>{user.name}</p>
+      {isHovering && (
+        <Button
+          type="button"
+          variant="naked"
+          onClick={() => {
+            const confirmDelete = window.confirm(
+              `Are you sure you want to delete ${user.name}? This can not be undone.`
+            )
+            if (confirmDelete) handleDeleteUser(user.id)
+          }}
+        >
+          <UserX color="#3D3D3D" size={16} />
+        </Button>
+      )}
     </Stack>
   )
 }
