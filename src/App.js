@@ -47,7 +47,6 @@ const reducer = (state, action) => {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, { name: '', users: {} })
-  console.log('state', state)
 
   useEffect(() => {
     if (_.size(state.users)) storeUsers(state.users)
