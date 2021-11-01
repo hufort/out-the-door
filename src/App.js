@@ -49,12 +49,16 @@ function App() {
   const [state, dispatch] = useReducer(reducer, { name: '', users: {} })
   console.log('state', state)
 
-  // useEffect(() => {
-  //   const existingUsers = fetchUsers()
-  //   if (existingUsers) {
-  //     dispatch({ type: 'LOAD_USERS', payload: existingUsers })
-  //   }
-  // }, [])
+  useEffect(() => {
+    if (_.size(state.users)) storeUsers(state.users)
+  }, [state])
+
+  useEffect(() => {
+    const existingUsers = fetchUsers()
+    if (existingUsers) {
+      dispatch({ type: 'LOAD_USERS', payload: existingUsers })
+    }
+  }, [])
 
   // const handleDeleteUser = (id) => {
   //   const usersUpdate = _.filter(users, (user) => user.id !== id)
@@ -132,7 +136,6 @@ function App() {
           minWidth="0px"
           flex={1}
           width="100%"
-          padding="1rem"
           gap="1rem"
         >
           <TaskSidebar tasks={TASKS} />
@@ -166,10 +169,11 @@ const Header = ({ children }) => (
 const TaskSidebar = ({ tasks }) => (
   <Stack
     axis="vertical"
-    borderRadius="3px"
-    distribution="space-between"
+    distribution="start"
+    flex={1}
     gap="1rem"
-    padding="0 1rem"
+    height="100%"
+    padding="1rem"
   >
     {_.map(tasks, (task) => (
       <TaskTile key={task.id} task={task} />
@@ -191,7 +195,7 @@ const TaskTile = ({ task, userId }) => {
     <Stack
       alignment="center"
       background="white"
-      borderRadius="3px"
+      borderRadius="6px"
       boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
       css={TaskTile}
       distribution="center"
@@ -211,10 +215,11 @@ const TaskTile = ({ task, userId }) => {
 const BodyGrid = ({ children }) => (
   <Grid
     columns="1fr"
+    flex={1}
     gap="1rem"
     gridAutoRows="max-content"
-    flex={1}
     height="100%"
+    padding="1rem"
     width="100%"
   >
     {children}
@@ -230,26 +235,20 @@ const UserContainer = ({ user }) => {
     <Stack
       axis="vertical"
       background="white"
+      borderRadius="6px"
       boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
-      borderRadius="3px"
       distribution="space-between"
       gap="1rem"
+      innerRef={setNodeRef}
       padding="1rem"
+      css={{
+        borderColor: isOver ? 'darkseagreen' : 'transparent',
+        borderWidth: '2px',
+        width: '100%',
+      }}
     >
       <p style={{ fontWeight: 500 }}>{user.name}</p>
-      <Stack
-        axis="horizontal"
-        gap="1rem"
-        innerRef={setNodeRef}
-        css={{
-          borderColor: isOver ? 'darkseagreen' : 'transparent',
-          borderRadius: '3px',
-          borderStyle: 'solid',
-          borderWidth: '2px',
-          height: '4rem',
-          width: '100%',
-        }}
-      >
+      <Stack axis="horizontal" gap="1rem" height="3rem">
         {_.map(user.tasksCompleted, (taskId) => (
           <TaskTile userId={user.id} key={taskId} task={TASKS[taskId]} />
         ))}
