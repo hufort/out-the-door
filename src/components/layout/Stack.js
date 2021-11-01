@@ -5,17 +5,50 @@ export const Stack = ({
   alignment = 'start',
   as: As = 'div',
   axis,
+  background,
+  border = 'none',
+  borderBottomWidth = 0,
+  borderColor = 'transparent',
+  borderLeftWidth = 0,
+  borderRadius,
+  borderRightWidth = 0,
+  borderStyle = 'solid',
+  borderTopWidth = 0,
+  borderWidth = 0,
+  bottom,
+  boxShadow,
   children,
   className,
+  cursor,
   distribution = 'start',
+  flex,
+  flexShrink,
   gap,
   grow,
+  height,
   innerRef,
+  left,
   margin,
-  padding,
+  marginBottom,
+  marginLeft,
+  marginRight,
+  marginTop,
+  maxHeight,
+  maxWidth,
+  minHeight,
+  minWidth,
   onMouseEnter,
   onMouseLeave,
-  ...styleProps
+  padding,
+  paddingBottom,
+  paddingLeft,
+  paddingRight,
+  paddingTop,
+  position,
+  right,
+  top,
+  width,
+  ...restProps
 }) => {
   let flexDirection
 
@@ -33,17 +66,49 @@ export const Stack = ({
 
   const flexGrow = grow ? (typeof grow === 'boolean' ? 1 : grow) : 0
 
-  const Stack = css({
+  const Stack = {
     alignItems: alignment,
+    background,
+    borderWidth,
+    border,
+    borderBottomWidth,
+    borderColor,
+    borderLeftWidth,
+    borderRadius,
+    borderRightWidth,
+    borderStyle,
+    borderTopWidth,
+    bottom,
+    boxShadow,
+    cursor,
     display: 'flex',
+    flex,
     flexDirection,
     flexGrow,
+    flexShrink,
     gap,
+    height,
     justifyContent: distribution,
+    left,
     margin,
+    marginBottom,
+    marginLeft,
+    marginRight,
+    marginTop,
+    maxHeight,
+    maxWidth,
+    minHeight,
+    minWidth,
     padding,
-    ...styleProps,
-  })
+    paddingBottom,
+    paddingLeft,
+    paddingRight,
+    paddingTop,
+    position,
+    right,
+    top,
+    width,
+  }
 
   return (
     <As
@@ -52,6 +117,7 @@ export const Stack = ({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       ref={innerRef}
+      {...restProps}
     >
       {children}
     </As>
