@@ -16,59 +16,59 @@ const makeDate = () => {
   return `${m}${d}${y}`
 }
 
-const TASKS = [
-  { id: 1, title: 'Make bed', icon: '🛏' },
-  { id: 2, title: 'Get dressed', icon: '👕' },
-  { id: 3, title: 'Backpack', icon: '🎒' },
-  { id: 4, title: 'Water bottle', icon: '💧' },
-  { id: 5, title: 'Lunch', icon: '🍱' },
-  { id: 6, title: 'Shoes', icon: '👟' },
-]
+const TASKS = {
+  1: { id: 1, title: 'Make bed', icon: '🛏' },
+  2: { id: 2, title: 'Get dressed', icon: '👕' },
+  3: { id: 3, title: 'Backpack', icon: '🎒' },
+  4: { id: 4, title: 'Water bottle', icon: '💧' },
+  5: { id: 5, title: 'Lunch', icon: '🍱' },
+  6: { id: 6, title: 'Shoes', icon: '👟' },
+}
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'HANDLE_CHANGE':
+      return { ...state, ...action.payload }
+    case 'CREATE_USER':
+      const { users, name } = state
+      const maxId = _(users).map('id').orderBy().last() || 0
+      const id = maxId + 1
+      users[id] = { name: name, id, tasksCompleted: [] }
+      return { ...state, name: '', users }
+    case 'LOAD_USERS':
+      return { ...state, users: action.payload }
+    case 'TASK_COMPLETED':
+      const { taskId, userId } = action.payload
+      const currentUser = state.users[userId]
+      currentUser.tasksCompleted = currentUser.tasksCompleted.concat([taskId])
+      return { ...state }
+  }
+}
 
 function App() {
-  const [users, setUsers] = useState(null)
-  console.log('users', users)
-  const [name, setName] = useState('')
+  const [state, dispatch] = useReducer(reducer, { name: '', users: {} })
+  console.log('state', state)
 
-  useEffect(() => {
-    const existingUsers = fetchUsers()
-    if (existingUsers) {
-      setUsers(existingUsers)
-    }
-  }, [])
+  // useEffect(() => {
+  //   const existingUsers = fetchUsers()
+  //   if (existingUsers) {
+  //     dispatch({ type: 'LOAD_USERS', payload: existingUsers })
+  //   }
+  // }, [])
 
-  const handleCreateUser = () => {
-    if (users) {
-      const preexists = _.some(
-        users,
-        (user) => user.name.toLowerCase() === name.toLowerCase()
-      )
-      if (preexists) {
-        alert(`Oops, a user named ${name} already exists.`)
-      } else {
-        const maxId = _(users).map('id').orderBy().last()
-        const usersUpdate = users.concat([{ name, id: maxId + 1 }])
-        storeUsers(usersUpdate)
-        setUsers(usersUpdate)
-      }
-    } else {
-      const newUsers = [{ name, id: 1 }]
-      storeUsers(newUsers)
-      setUsers(newUsers)
-    }
-  }
-
-  const handleDeleteUser = (id) => {
-    const usersUpdate = _.filter(users, (user) => user.id !== id)
-    storeUsers(usersUpdate)
-    setUsers(usersUpdate)
-  }
+  // const handleDeleteUser = (id) => {
+  //   const usersUpdate = _.filter(users, (user) => user.id !== id)
+  //   storeUsers(usersUpdate)
+  //   setUsers(usersUpdate)
+  // }
 
   const handleDragEnd = (event) => {
     if (event.over) {
-      console.log('event', event)
       const userId = event.over.id.split('-').pop()
-      setUserDayTasks
+      const taskId = event.active.id.split('-').pop()
+      return _.includes(state.users[userId].tasksCompleted, taskId)
+        ? null
+        : dispatch({ type: 'TASK_COMPLETED', payload: { userId, taskId } })
     }
   }
 
@@ -87,14 +87,34 @@ function App() {
             placement="bottom-end"
           >
             <Stack padding="8px">
-              <form onSubmit={handleCreateUser}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const { users, name } = state
+                  const preexists = _.some(
+                    users,
+                    (user) => user.name.toLowerCase() === name.toLowerCase()
+                  )
+                  if (preexists) {
+                    return alert(
+                      `Uh oh, it looks like a user named ${name} already exists`
+                    )
+                  }
+                  return dispatch({ type: 'CREATE_USER' })
+                }}
+              >
                 <Stack axis="vertical" gap="8px" alignment="end">
                   <label htmlFor="new-user-name" />
                   <input
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) =>
+                      dispatch({
+                        type: 'HANDLE_CHANGE',
+                        payload: { name: e.target.value },
+                      })
+                    }
                     placeholder="Name"
                     type="text"
-                    value={name}
+                    value={state.name}
                     autoFocus
                     style={{ padding: '4px 8px' }}
                   />
@@ -117,15 +137,9 @@ function App() {
         >
           <TaskSidebar tasks={TASKS} />
           <BodyGrid>
-            {users &&
-              users.map((user) => (
-                <UserContainer
-                  key={user.id}
-                  user={user}
-                  users={users}
-                  setUsers={setUsers}
-                />
-              ))}
+            {_.map(state.users, (user) => (
+              <UserContainer key={user.id} user={user} users={state.users} />
+            ))}
           </BodyGrid>
         </Stack>
       </Stack>
@@ -157,7 +171,7 @@ const TaskSidebar = ({ tasks }) => (
     gap="1rem"
     padding="0 1rem"
   >
-    {tasks.map((task) => (
+    {_.map(tasks, (task) => (
       <TaskTile key={task.id} task={task} />
     ))}
   </Stack>
@@ -235,7 +249,11 @@ const UserContainer = ({ user }) => {
           height: '4rem',
           width: '100%',
         }}
-      ></Stack>
+      >
+        {_.map(user.tasksCompleted, (taskId) => (
+          <TaskTile key={taskId} task={TASKS[taskId]} />
+        ))}
+      </Stack>
     </Stack>
   )
 }
