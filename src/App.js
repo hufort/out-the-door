@@ -177,9 +177,10 @@ const TaskSidebar = ({ tasks }) => (
   </Stack>
 )
 
-const TaskTile = ({ task }) => {
+const TaskTile = ({ task, userId }) => {
+  const id = `${userId ? `user-${userId}-` : ''}draggable-task-id-${task.id}`
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: `draggable-task-id-${task.id}`,
+    id,
   })
 
   const TaskTile = {
@@ -233,7 +234,6 @@ const UserContainer = ({ user }) => {
       borderRadius="3px"
       distribution="space-between"
       gap="1rem"
-      height="15rem"
       padding="1rem"
     >
       <p style={{ fontWeight: 500 }}>{user.name}</p>
@@ -251,7 +251,7 @@ const UserContainer = ({ user }) => {
         }}
       >
         {_.map(user.tasksCompleted, (taskId) => (
-          <TaskTile key={taskId} task={TASKS[taskId]} />
+          <TaskTile userId={user.id} key={taskId} task={TASKS[taskId]} />
         ))}
       </Stack>
     </Stack>
