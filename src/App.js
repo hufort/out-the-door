@@ -77,12 +77,7 @@ function App() {
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <Stack
-        width="100%"
-        height="100vh"
-        position="relative"
-        background="whitesmoke"
-      >
+      <Stack width="100%" height="100vh" position="relative" bg="whitesmoke">
         <Header>
           <h1 css={{ fontSize: '1rem' }}>Out the Door</h1>
           <Dropdown
@@ -133,7 +128,6 @@ function App() {
           axis="horizontal"
           minHeight="100%"
           minWidth="0px"
-          flex={1}
           width="100%"
           gap="1rem"
         >
@@ -153,8 +147,8 @@ const Header = ({ children }) => (
   <Stack
     alignment="center"
     axis="horizontal"
-    background="white"
-    boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
+    bg="white"
+    boxShadow={0}
     distribution="space-between"
     padding="1rem"
     position="sticky"
@@ -169,7 +163,8 @@ const TaskSidebar = ({ tasks }) => (
   <Stack
     axis="vertical"
     distribution="start"
-    flex={1}
+    borderWidth={3}
+    borderColor="red"
     gap="1rem"
     height="100%"
     padding="1rem"
@@ -193,9 +188,9 @@ const TaskTile = ({ task, userId }) => {
   return (
     <Stack
       alignment="center"
-      background="white"
+      bg="white"
       borderRadius="6px"
-      boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
+      boxShadow={2}
       css={TaskTile}
       distribution="center"
       height="3rem"
@@ -233,9 +228,9 @@ const UserContainer = ({ user }) => {
   return (
     <Stack
       axis="vertical"
-      background="white"
+      bg="white"
       borderRadius="6px"
-      boxShadow="rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px"
+      boxShadow={0}
       distribution="space-between"
       gap="1rem"
       innerRef={setNodeRef}
@@ -243,6 +238,7 @@ const UserContainer = ({ user }) => {
       css={{
         borderColor: isOver ? 'darkseagreen' : 'transparent',
         borderWidth: '2px',
+        borderStyle: 'solid',
         width: '100%',
       }}
     >
