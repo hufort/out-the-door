@@ -17,6 +17,7 @@
     "react-feather": "^2.0.9",
     "react-popper": "^2.2.5",
     "react-scripts": "4.0.3",
+    "styled-system": "^5.1.5",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
