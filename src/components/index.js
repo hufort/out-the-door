@@ -1,3 +1,4 @@
+export { Box } from './Box'
 export { Button } from './Button'
 export { Dropdown } from './Dropdown'
 export { Grid } from './layout/Grid'
