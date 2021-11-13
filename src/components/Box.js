@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import shouldForwardProp from '@styled-system/should-forward-prop'
-import { border, color, layout, space, system } from 'styled-system'
+import { border, color, compose, layout, space, system } from 'styled-system'
 
 const StyledComponent = styled('div', { shouldForwardProp })(
   { boxSizing: 'border-box' },
@@ -11,10 +11,7 @@ const StyledComponent = styled('div', { shouldForwardProp })(
     },
     cursor: true,
   }),
-  border,
-  color,
-  layout,
-  space
+  compose(border, space, color, layout)
 )
 
 export const Box = ({ innerRef, ...props }) => (
