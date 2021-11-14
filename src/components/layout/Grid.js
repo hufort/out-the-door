@@ -1,29 +1,25 @@
-import React from 'react'
-import { css } from '@emotion/react'
+import styled from '@emotion/styled'
+import { grid, system } from 'styled-system'
+import { Box } from '..'
 
-export const Grid = ({
-  children,
-  columns,
-  alignment = 'start',
-  distribution = 'start',
-  gap,
-  padding,
-  margin,
-  ...styleProps
-}) => {
-  const childCount = React.Children.count(children)
-  const gridTemplateColumns = columns ? columns : `repeat(${childCount}, 1fr)`
-
-  const Grid = {
-    alignItems: alignment,
-    display: 'grid',
-    gap,
-    gridTemplateColumns,
-    justifyContent: distribution,
-    margin,
-    padding,
-    ...styleProps,
-  }
-
-  return <div css={Grid}>{children}</div>
-}
+export const Grid = styled(Box)(
+  { display: 'grid' },
+  system({
+    alignment: {
+      property: 'alignItems',
+      scale: 'alignment',
+    },
+    columns: {
+      property: 'gridTemplateColumns',
+    },
+    distribution: {
+      property: 'justifyContent',
+      scale: 'distribution',
+    },
+    gap: {
+      properties: ['gap', 'gridGap'],
+      scale: 'gap',
+    },
+  }),
+  grid
+)
