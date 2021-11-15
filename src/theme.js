@@ -7,7 +7,7 @@ const DISTRIBUTION = ALIGNMENT.concat([
   'stretch',
 ])
 
-export default {
+const theme = {
   alignment: ALIGNMENT,
   animation: {
     easeOutCubic: 'cubic-bezier(0.33, 1, 0.68, 1)',
@@ -50,3 +50,5 @@ export default {
   sizes: EIGHT_PIXEL_SCALE,
   space: EIGHT_PIXEL_SCALE,
 }
+
+export default theme
