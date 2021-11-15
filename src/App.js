@@ -1,20 +1,22 @@
-import React, { useEffect, useState, useReducer } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import _ from 'lodash'
-import { Check, UserPlus } from 'react-feather'
-import { Button, Dropdown, Grid, Stack } from './components'
+import { Check, Trash, UserPlus } from 'react-feather'
+import { Button, Dropdown, Grid, Separator, Stack } from './components'
 import { fetchUsers, storeUsers } from './api'
 
 // DND
 import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 
-const makeDate = () => {
-  const now = new Date()
-  const m = now.getMonth()
-  const d = now.getDate()
-  const y = now.getFullYear()
-  return `${m}${d}${y}`
-}
+// const makeDate = () => {
+//   const now = new Date()
+//   const m = now.getMonth()
+//   const d = now.getDate()
+//   const y = now.getFullYear()
+//   return `${m}${d}${y}`
+// }
+
+const TASK_STATUS = { complete: 'complete', todo: 'todo' }
 
 const TASKS = {
   1: { id: 1, title: 'Make bed', icon: '🛏' },
@@ -26,6 +28,8 @@ const TASKS = {
 }
 
 const reducer = (state, action) => {
+  let taskId, userId, currentUser
+
   switch (action.type) {
     case 'HANDLE_CHANGE':
       return { ...state, ...action.payload }
@@ -37,11 +41,20 @@ const reducer = (state, action) => {
       return { ...state, name: '', users }
     case 'LOAD_USERS':
       return { ...state, users: action.payload }
-    case 'TASK_COMPLETED':
-      const { taskId, userId } = action.payload
-      const currentUser = state.users[userId]
+    case 'MARK_COMPLETE':
+      taskId = action.payload.taskId
+      userId = action.payload.userId
+      currentUser = state.users[userId]
       currentUser.tasksCompleted = currentUser.tasksCompleted.concat([taskId])
       return { ...state }
+    case 'MARK_INCOMPLETE':
+      taskId = action.payload.taskId
+      userId = action.payload.userId
+      currentUser = state.users[userId]
+      currentUser.tasksCompleted = _.pull(currentUser.tasksCompleted, taskId)
+      return { ...state }
+    default:
+      return state
   }
 }
 
@@ -66,12 +79,27 @@ function App() {
   // }
 
   const handleDragEnd = (event) => {
-    if (event.over) {
-      const userId = event.over.id.split('-').pop()
-      const taskId = event.active.id.split('-').pop()
-      return _.includes(state.users[userId].tasksCompleted, taskId)
-        ? null
-        : dispatch({ type: 'TASK_COMPLETED', payload: { userId, taskId } })
+    const { active, over } = event
+    if (over) {
+      const accepts = over.data.current.accepts
+      let userId
+      let taskId
+      switch (accepts) {
+        case TASK_STATUS.todo:
+          userId = over.data.current.userId
+          taskId = active.data.current.taskId
+          return _.includes(state.users[userId].tasksCompleted, taskId)
+            ? null
+            : dispatch({ type: 'MARK_COMPLETE', payload: { userId, taskId } })
+        case TASK_STATUS.complete:
+          userId = active.data.current.userId
+          taskId = active.data.current.taskId
+          return _.includes(state.users[userId].tasksCompleted, taskId)
+            ? dispatch({ type: 'MARK_INCOMPLETE', payload: { userId, taskId } })
+            : null
+        default:
+          console.warn('Action not accepted')
+      }
     }
   }
 
@@ -161,24 +189,86 @@ const Header = ({ children }) => (
 
 const TaskSidebar = ({ tasks }) => (
   <Stack
+    alignment="center"
     axis="vertical"
-    distribution="start"
-    borderWidth={3}
     borderColor="red"
+    borderWidth={3}
+    distribution="start"
     gap="1rem"
     height="100%"
     padding="1rem"
   >
     {_.map(tasks, (task) => (
-      <TaskTile key={task.id} task={task} />
+      <TaskTile key={task.id} task={task} taskStatus={TASK_STATUS.todo} />
     ))}
+    <Separator variant="horizontal" />
+    <Dropzone
+      accepts={TASK_STATUS.complete}
+      id="delete-completed-dropzone"
+      type={DROPZONE_TYPE.destroy}
+    >
+      <Trash color="lightgrey" size={18} />
+    </Dropzone>
   </Stack>
 )
 
-const TaskTile = ({ task, userId }) => {
+const DROPZONE_TYPE = {
+  create: 1,
+  destroy: 2,
+  neutral: 3,
+}
+
+const Dropzone = ({
+  accepts,
+  children,
+  id,
+  minHeight = '3.25rem',
+  minWidth = '3.25rem',
+  type = DROPZONE_TYPE.neutral,
+}) => {
+  const { isOver, setNodeRef } = useDroppable({
+    id,
+    data: { accepts },
+  })
+
+  const getIsOverColor = () => {
+    switch (type) {
+      case DROPZONE_TYPE.neutral:
+        return 'separator'
+      case DROPZONE_TYPE.create:
+        return 'green'
+      case DROPZONE_TYPE.destroy:
+        return 'red'
+      default:
+        return 'separator'
+    }
+  }
+
+  return (
+    <Stack
+      alignment="center"
+      borderRadius="6px"
+      css={{
+        borderColor: isOver ? getIsOverColor() : 'transparent',
+        borderStyle: 'dashed',
+        borderWidth: '2px',
+        minHeight,
+        minWidth,
+        width: '100%',
+      }}
+      distribution="center"
+      innerRef={setNodeRef}
+    >
+      {children}
+    </Stack>
+  )
+}
+
+const TaskTile = ({ task, taskStatus, userId }) => {
   const id = `${userId ? `user-${userId}-` : ''}draggable-task-id-${task.id}`
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id,
+    data: { taskId: task.id, type: taskStatus, userId },
   })
 
   const TaskTile = {
@@ -223,6 +313,10 @@ const BodyGrid = ({ children }) => (
 const UserContainer = ({ user }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: `droppable-user-id-${user.id}`,
+    data: {
+      accepts: TASK_STATUS.todo,
+      userId: user.id,
+    },
   })
 
   return (
@@ -245,7 +339,12 @@ const UserContainer = ({ user }) => {
       <p style={{ fontWeight: 500 }}>{user.name}</p>
       <Stack axis="horizontal" gap="1rem" height="3rem">
         {_.map(user.tasksCompleted, (taskId) => (
-          <TaskTile userId={user.id} key={taskId} task={TASKS[taskId]} />
+          <TaskTile
+            userId={user.id}
+            key={taskId}
+            task={TASKS[taskId]}
+            taskStatus={TASK_STATUS.complete}
+          />
         ))}
       </Stack>
     </Stack>
