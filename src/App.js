@@ -86,15 +86,16 @@ function App() {
       let taskId
       switch (accepts) {
         case TASK_STATUS.todo:
-          console.log('over', over)
           userId = over.data.current.userId
           taskId = active.data.current.taskId
+          if (!userId || !taskId) return
           return _.includes(state.users[userId].tasksCompleted, taskId)
             ? null
             : dispatch({ type: 'MARK_COMPLETE', payload: { userId, taskId } })
         case TASK_STATUS.complete:
           userId = active.data.current.userId
           taskId = active.data.current.taskId
+          if (!userId || !taskId) return
           return _.includes(state.users[userId].tasksCompleted, taskId)
             ? dispatch({ type: 'MARK_INCOMPLETE', payload: { userId, taskId } })
             : null
@@ -207,7 +208,7 @@ const TaskSidebar = ({ tasks }) => (
       accepts={TASK_STATUS.complete}
       borderColor="lightgrey"
       id="delete-completed-dropzone"
-      type={DROPZONE_TYPE.destroy}
+      dropzoneType={DROPZONE_TYPE.destroy}
     >
       <Trash color="lightgrey" size={18} />
     </Dropzone>
@@ -224,19 +225,28 @@ const Dropzone = ({
   accepts,
   borderColor = 'whitesmoke',
   children,
-  data,
+  droppableData,
   id,
   minHeight = '3.25rem',
   minWidth = '3.25rem',
-  type = DROPZONE_TYPE.neutral,
+  dropzoneType = DROPZONE_TYPE.neutral,
+  validateCanDrop = ({ draggable, droppable }) => true,
 }) => {
-  const { isOver, setNodeRef } = useDroppable({
+  const { active, isOver, over, setNodeRef } = useDroppable({
     id,
-    data: { accepts, ...data },
+    data: { accepts, ...droppableData },
   })
 
-  const getIsOverColor = () => {
-    switch (type) {
+  const draggable = active?.data?.current
+  console.log('draggable', draggable)
+  const droppable = over?.data?.current
+  console.log('droppable', droppable)
+
+  const doesAccept = _(accepts).includes(draggable?.type)
+  const canDrop = doesAccept && validateCanDrop({ draggable, droppable })
+
+  const getActiveBorderColor = () => {
+    switch (dropzoneType) {
       case DROPZONE_TYPE.neutral:
         return 'separator'
       case DROPZONE_TYPE.create:
@@ -253,7 +263,7 @@ const Dropzone = ({
       alignment="center"
       borderRadius="6px"
       css={{
-        borderColor: isOver ? getIsOverColor() : borderColor,
+        borderColor: isOver && canDrop ? getActiveBorderColor() : borderColor,
         borderStyle: 'dashed',
         borderWidth: '2px',
         minHeight,
@@ -342,9 +352,12 @@ const UserContainer = ({ user }) => {
         {tasksRemain ? (
           <Dropzone
             accepts={TASK_STATUS.todo}
-            data={{ userId: user.id }}
+            droppableData={{ userId: user.id }}
             id={`user-id-${user.id}-task-dropzone`}
-            type={DROPZONE_TYPE.create}
+            dropzoneType={DROPZONE_TYPE.create}
+            validateCanDrop={({ draggable, droppable }) =>
+              !_.includes(tasksCompleted, draggable.taskId)
+            }
           >
             <Plus color="lightgrey" size={18} />
           </Dropzone>
