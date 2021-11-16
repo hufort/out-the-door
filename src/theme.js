@@ -12,7 +12,7 @@ const theme = {
   animation: {
     easeOutCubic: 'cubic-bezier(0.33, 1, 0.68, 1)',
   },
-  breakpoints: ['544px', '768px', '1012px', '1280px'],
+  breakpoint: ['544px', '768px', '1012px', '1280px'],
   boxShadow: [
     'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;',
     'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px',
@@ -22,7 +22,7 @@ const theme = {
     'rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px',
     'rgba(0, 0, 0, 0.25) 0px 25px 50px -12px',
   ],
-  colors: {
+  color: {
     blue: '#4682BF',
     green: '#556B2F',
     orange: 'FF7F50',
@@ -35,19 +35,19 @@ const theme = {
     yellow: '#FFD700',
   },
   distribution: DISTRIBUTION,
-  fonts: {
-    normal:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+  font: {
+    sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
     mono: 'SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace',
   },
-  fontWeights: {
+  fontWeight: {
     light: 300,
     normal: 400,
     semibold: 500,
     bold: 600,
   },
+  fontSize: [10, 12, 14, 16, 18, 20, 24, 28, 32],
   gap: EIGHT_PIXEL_SCALE,
-  sizes: EIGHT_PIXEL_SCALE,
+  size: EIGHT_PIXEL_SCALE,
   space: EIGHT_PIXEL_SCALE,
 }
 

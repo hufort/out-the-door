@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer } from 'react'
 import _ from 'lodash'
 import { Check, Plus, Trash, UserPlus } from 'react-feather'
-import { Button, Dropdown, Grid, Separator, Stack } from './components'
+import { Button, Dropdown, Grid, Separator, Stack, Text } from './components'
 import { fetchUsers, storeUsers } from './api'
 
 // DND
@@ -294,7 +294,7 @@ const TaskTile = ({ task, taskStatus, userId }) => {
       {...listeners}
       {...attributes}
     >
-      <p css={{ fontSize: '1.5rem' }}>{task.icon}</p>
+      <Text size={6}>{task.icon}</Text>
     </Stack>
   )
 }
@@ -327,7 +327,9 @@ const UserContainer = ({ user }) => {
       gap="1rem"
       padding="1rem"
     >
-      <p style={{ fontWeight: 500 }}>{user.name}</p>
+      <Text font="sans" weight="bold" size={2}>
+        {user.name}
+      </Text>
       <Stack axis="horizontal" gap="1rem" height="3rem">
         {_.map(tasksCompleted, (taskId) => (
           <TaskTile
