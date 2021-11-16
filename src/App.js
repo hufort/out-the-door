@@ -242,6 +242,13 @@ const Dropzone = ({
     data: { accepts, ...dropzoneData },
   })
 
+  // It feels like Dropzone it pobably doing too much here
+  // Not sure it should be passing `draggable` back up in
+  // validateCanDrop. It's also all just for rendering a
+  // different color border. I have a hunch that dnd-kit
+  // may provide a first class way to validate if a draggable
+  // can be dropped or not.
+
   const draggable = active?.data?.current
   const droppable = over?.data?.current
 
