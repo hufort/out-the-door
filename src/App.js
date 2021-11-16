@@ -16,7 +16,7 @@ import { CSS } from '@dnd-kit/utilities'
 //   return `${m}${d}${y}`
 // }
 
-const TASK_STATUS = { complete: 'complete', todo: 'todo' }
+const TASK_STATUS = { complete: 'complete', incomplete: 'incomplete' }
 
 const TASKS = {
   1: { id: 1, title: 'Make bed', icon: '🛏' },
@@ -85,7 +85,7 @@ function App() {
       let userId
       let taskId
       switch (accepts) {
-        case TASK_STATUS.todo:
+        case TASK_STATUS.incomplete:
           userId = over.data.current.userId
           taskId = active.data.current.taskId
           if (!userId || !taskId) return
@@ -201,7 +201,7 @@ const TaskSidebar = ({ tasks }) => (
     padding="1rem"
   >
     {_.map(tasks, (task) => (
-      <TaskTile key={task.id} task={task} taskStatus={TASK_STATUS.todo} />
+      <TaskTile key={task.id} task={task} taskStatus={TASK_STATUS.incomplete} />
     ))}
     <Separator variant="horizontal" />
     <Dropzone
@@ -225,7 +225,7 @@ const Dropzone = ({
   accepts,
   borderColor = 'whitesmoke',
   children,
-  droppableData,
+  dropzoneData,
   id,
   minHeight = '3.25rem',
   minWidth = '3.25rem',
@@ -234,7 +234,7 @@ const Dropzone = ({
 }) => {
   const { active, isOver, over, setNodeRef } = useDroppable({
     id,
-    data: { accepts, ...droppableData },
+    data: { accepts, ...dropzoneData },
   })
 
   const draggable = active?.data?.current
@@ -351,10 +351,10 @@ const UserContainer = ({ user }) => {
         ))}
         {tasksRemain ? (
           <Dropzone
-            accepts={TASK_STATUS.todo}
-            droppableData={{ userId: user.id }}
-            id={`user-id-${user.id}-task-dropzone`}
+            accepts={TASK_STATUS.incomplete}
+            dropzoneData={{ userId: user.id }}
             dropzoneType={DROPZONE_TYPE.create}
+            id={`user-id-${user.id}-task-dropzone`}
             validateCanDrop={({ draggable, droppable }) =>
               !_.includes(tasksCompleted, draggable.taskId)
             }
