@@ -37,7 +37,7 @@ const reducer = (state, action) => {
       const { users, name } = state
       const maxId = _(users).map('id').orderBy().last() || 0
       const id = maxId + 1
-      users[id] = { name: name, id, tasksCompleted: [] }
+      users[id] = { name: name, id, taskIdsCompleted: [] }
       return { ...state, name: '', users }
     case 'LOAD_USERS':
       return { ...state, users: action.payload }
@@ -45,13 +45,18 @@ const reducer = (state, action) => {
       taskId = action.payload.taskId
       userId = action.payload.userId
       currentUser = state.users[userId]
-      currentUser.tasksCompleted = currentUser.tasksCompleted.concat([taskId])
+      currentUser.taskIdsCompleted = currentUser.taskIdsCompleted.concat([
+        taskId,
+      ])
       return { ...state }
     case 'MARK_INCOMPLETE':
       taskId = action.payload.taskId
       userId = action.payload.userId
       currentUser = state.users[userId]
-      currentUser.tasksCompleted = _.pull(currentUser.tasksCompleted, taskId)
+      currentUser.taskIdsCompleted = _.pull(
+        currentUser.taskIdsCompleted,
+        taskId
+      )
       return { ...state }
     default:
       return state
@@ -89,14 +94,14 @@ function App() {
           userId = over.data.current.userId
           taskId = active.data.current.taskId
           if (!userId || !taskId) return
-          return _.includes(state.users[userId].tasksCompleted, taskId)
+          return _.includes(state.users[userId].taskIdsCompleted, taskId)
             ? null
             : dispatch({ type: 'MARK_COMPLETE', payload: { userId, taskId } })
         case TASK_STATUS.complete:
           userId = active.data.current.userId
           taskId = active.data.current.taskId
           if (!userId || !taskId) return
-          return _.includes(state.users[userId].tasksCompleted, taskId)
+          return _.includes(state.users[userId].taskIdsCompleted, taskId)
             ? dispatch({ type: 'MARK_INCOMPLETE', payload: { userId, taskId } })
             : null
         default:
@@ -238,9 +243,7 @@ const Dropzone = ({
   })
 
   const draggable = active?.data?.current
-  console.log('draggable', draggable)
   const droppable = over?.data?.current
-  console.log('droppable', droppable)
 
   const doesAccept = _(accepts).includes(draggable?.type)
   const canDrop = doesAccept && validateCanDrop({ draggable, droppable })
@@ -324,8 +327,11 @@ const BodyGrid = ({ children }) => (
 )
 
 const UserContainer = ({ user }) => {
-  const tasksCompleted = user.tasksCompleted
-  const tasksRemain = Object.keys(TASKS).length - tasksCompleted.length > 0
+  const tasksIdsCompleted = user.taskIdsCompleted
+  const tasksIdsRemaining = _(TASKS)
+    .map('id')
+    .difference(tasksIdsCompleted)
+    .value()
 
   return (
     <Stack
@@ -341,7 +347,7 @@ const UserContainer = ({ user }) => {
         {user.name}
       </Text>
       <Stack axis="horizontal" gap="1rem" height="3rem">
-        {_.map(tasksCompleted, (taskId) => (
+        {_.map(tasksIdsCompleted, (taskId) => (
           <TaskTile
             userId={user.id}
             key={taskId}
@@ -349,14 +355,14 @@ const UserContainer = ({ user }) => {
             taskStatus={TASK_STATUS.complete}
           />
         ))}
-        {tasksRemain ? (
+        {tasksIdsRemaining.length ? (
           <Dropzone
             accepts={TASK_STATUS.incomplete}
             dropzoneData={{ userId: user.id }}
             dropzoneType={DROPZONE_TYPE.create}
             id={`user-id-${user.id}-task-dropzone`}
             validateCanDrop={({ draggable, droppable }) =>
-              !_.includes(tasksCompleted, draggable.taskId)
+              !_.includes(tasksIdsCompleted, draggable.taskId)
             }
           >
             <Plus color="lightgrey" size={18} />
