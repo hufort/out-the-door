@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from 'react'
 import _ from 'lodash'
-import { Check, Trash, UserPlus } from 'react-feather'
+import { Check, Plus, Trash, UserPlus } from 'react-feather'
 import { Button, Dropdown, Grid, Separator, Stack } from './components'
 import { fetchUsers, storeUsers } from './api'
 
@@ -86,6 +86,7 @@ function App() {
       let taskId
       switch (accepts) {
         case TASK_STATUS.todo:
+          console.log('over', over)
           userId = over.data.current.userId
           taskId = active.data.current.taskId
           return _.includes(state.users[userId].tasksCompleted, taskId)
@@ -204,6 +205,7 @@ const TaskSidebar = ({ tasks }) => (
     <Separator variant="horizontal" />
     <Dropzone
       accepts={TASK_STATUS.complete}
+      borderColor="lightgrey"
       id="delete-completed-dropzone"
       type={DROPZONE_TYPE.destroy}
     >
@@ -220,7 +222,9 @@ const DROPZONE_TYPE = {
 
 const Dropzone = ({
   accepts,
+  borderColor = 'whitesmoke',
   children,
+  data,
   id,
   minHeight = '3.25rem',
   minWidth = '3.25rem',
@@ -228,7 +232,7 @@ const Dropzone = ({
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id,
-    data: { accepts },
+    data: { accepts, ...data },
   })
 
   const getIsOverColor = () => {
@@ -249,12 +253,11 @@ const Dropzone = ({
       alignment="center"
       borderRadius="6px"
       css={{
-        borderColor: isOver ? getIsOverColor() : 'transparent',
+        borderColor: isOver ? getIsOverColor() : borderColor,
         borderStyle: 'dashed',
         borderWidth: '2px',
         minHeight,
         minWidth,
-        width: '100%',
       }}
       distribution="center"
       innerRef={setNodeRef}
@@ -311,13 +314,8 @@ const BodyGrid = ({ children }) => (
 )
 
 const UserContainer = ({ user }) => {
-  const { isOver, setNodeRef } = useDroppable({
-    id: `droppable-user-id-${user.id}`,
-    data: {
-      accepts: TASK_STATUS.todo,
-      userId: user.id,
-    },
-  })
+  const tasksCompleted = user.tasksCompleted
+  const tasksRemain = Object.keys(TASKS).length - tasksCompleted.length > 0
 
   return (
     <Stack
@@ -327,18 +325,11 @@ const UserContainer = ({ user }) => {
       boxShadow={0}
       distribution="space-between"
       gap="1rem"
-      innerRef={setNodeRef}
       padding="1rem"
-      css={{
-        borderColor: isOver ? 'darkseagreen' : 'transparent',
-        borderWidth: '2px',
-        borderStyle: 'solid',
-        width: '100%',
-      }}
     >
       <p style={{ fontWeight: 500 }}>{user.name}</p>
       <Stack axis="horizontal" gap="1rem" height="3rem">
-        {_.map(user.tasksCompleted, (taskId) => (
+        {_.map(tasksCompleted, (taskId) => (
           <TaskTile
             userId={user.id}
             key={taskId}
@@ -346,6 +337,16 @@ const UserContainer = ({ user }) => {
             taskStatus={TASK_STATUS.complete}
           />
         ))}
+        {tasksRemain ? (
+          <Dropzone
+            accepts={TASK_STATUS.todo}
+            data={{ userId: user.id }}
+            id={`user-id-${user.id}-task-dropzone`}
+            type={DROPZONE_TYPE.create}
+          >
+            <Plus color="lightgrey" size={18} />
+          </Dropzone>
+        ) : null}
       </Stack>
     </Stack>
   )
