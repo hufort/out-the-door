@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { Check, Plus, Trash, UserPlus } from 'react-feather'
 import { Button, Dropdown, Grid, Separator, Stack, Text } from './components'
 import { fetchUsers, storeUsers } from './api'
+import { DROPZONE_TYPE, TASK_STATUS, TASKS } from './constants'
 
 // DND
 import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core'
@@ -15,17 +16,6 @@ import { CSS } from '@dnd-kit/utilities'
 //   const y = now.getFullYear()
 //   return `${m}${d}${y}`
 // }
-
-const TASK_STATUS = { complete: 'complete', incomplete: 'incomplete' }
-
-const TASKS = {
-  1: { id: 1, title: 'Make bed', icon: '🛏' },
-  2: { id: 2, title: 'Get dressed', icon: '👕' },
-  3: { id: 3, title: 'Backpack', icon: '🎒' },
-  4: { id: 4, title: 'Water bottle', icon: '💧' },
-  5: { id: 5, title: 'Lunch', icon: '🍱' },
-  6: { id: 6, title: 'Shoes', icon: '👟' },
-}
 
 const reducer = (state, action) => {
   let taskId, userId, currentUser
@@ -219,12 +209,6 @@ const TaskSidebar = ({ tasks }) => (
     </Dropzone>
   </Stack>
 )
-
-const DROPZONE_TYPE = {
-  create: 1,
-  destroy: 2,
-  neutral: 3,
-}
 
 const Dropzone = ({
   accepts,
