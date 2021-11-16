@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import { flex, system } from 'styled-system'
-import { Box } from '..'
+import { Box } from '.'
 
 const AXIS = {
   horizontal: 'row',

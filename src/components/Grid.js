@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import { grid, system } from 'styled-system'
-import { Box } from '..'
+import { Box } from '.'
 
 export const Grid = styled(Box)(
   { display: 'grid' },
