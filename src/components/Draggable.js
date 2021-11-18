@@ -4,13 +4,15 @@ import { CSS } from '@dnd-kit/utilities'
 import { Box } from '.'
 
 export const Draggable = ({ children, data = {}, id, ...props }) => {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id,
-    data,
-  })
+  const { isDragging, attributes, listeners, setNodeRef, transform } =
+    useDraggable({
+      id,
+      data,
+    })
 
   const css = {
     transform: CSS.Translate.toString(transform),
+    cursor: isDragging ? 'grabbing' : 'grab',
   }
 
   return (
