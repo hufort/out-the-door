@@ -1,8 +1,9 @@
 import React, { useEffect, useReducer } from 'react'
 import _ from 'lodash'
-import { Check, Trash, UserPlus } from 'react-feather'
-import { Button, Dropdown, Grid, Separator, Stack } from './components'
+import { Check, Plus, Trash, UserPlus } from 'react-feather'
+import { Button, Dropdown, Grid, Separator, Stack, Text } from './components'
 import { fetchUsers, storeUsers } from './api'
+import { DROPZONE_TYPE, TASK_STATUS, TASKS } from './constants'
 
 // DND
 import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core'
@@ -16,17 +17,6 @@ import { CSS } from '@dnd-kit/utilities'
 //   return `${m}${d}${y}`
 // }
 
-const TASK_STATUS = { complete: 'complete', todo: 'todo' }
-
-const TASKS = {
-  1: { id: 1, title: 'Make bed', icon: '🛏' },
-  2: { id: 2, title: 'Get dressed', icon: '👕' },
-  3: { id: 3, title: 'Backpack', icon: '🎒' },
-  4: { id: 4, title: 'Water bottle', icon: '💧' },
-  5: { id: 5, title: 'Lunch', icon: '🍱' },
-  6: { id: 6, title: 'Shoes', icon: '👟' },
-}
-
 const reducer = (state, action) => {
   let taskId, userId, currentUser
 
@@ -37,7 +27,7 @@ const reducer = (state, action) => {
       const { users, name } = state
       const maxId = _(users).map('id').orderBy().last() || 0
       const id = maxId + 1
-      users[id] = { name: name, id, tasksCompleted: [] }
+      users[id] = { name: name, id, taskIdsCompleted: [] }
       return { ...state, name: '', users }
     case 'LOAD_USERS':
       return { ...state, users: action.payload }
@@ -45,13 +35,18 @@ const reducer = (state, action) => {
       taskId = action.payload.taskId
       userId = action.payload.userId
       currentUser = state.users[userId]
-      currentUser.tasksCompleted = currentUser.tasksCompleted.concat([taskId])
+      currentUser.taskIdsCompleted = currentUser.taskIdsCompleted.concat([
+        taskId,
+      ])
       return { ...state }
     case 'MARK_INCOMPLETE':
       taskId = action.payload.taskId
       userId = action.payload.userId
       currentUser = state.users[userId]
-      currentUser.tasksCompleted = _.pull(currentUser.tasksCompleted, taskId)
+      currentUser.taskIdsCompleted = _.pull(
+        currentUser.taskIdsCompleted,
+        taskId
+      )
       return { ...state }
     default:
       return state
@@ -85,16 +80,18 @@ function App() {
       let userId
       let taskId
       switch (accepts) {
-        case TASK_STATUS.todo:
+        case TASK_STATUS.incomplete:
           userId = over.data.current.userId
           taskId = active.data.current.taskId
-          return _.includes(state.users[userId].tasksCompleted, taskId)
+          if (!userId || !taskId) return
+          return _.includes(state.users[userId].taskIdsCompleted, taskId)
             ? null
             : dispatch({ type: 'MARK_COMPLETE', payload: { userId, taskId } })
         case TASK_STATUS.complete:
           userId = active.data.current.userId
           taskId = active.data.current.taskId
-          return _.includes(state.users[userId].tasksCompleted, taskId)
+          if (!userId || !taskId) return
+          return _.includes(state.users[userId].taskIdsCompleted, taskId)
             ? dispatch({ type: 'MARK_INCOMPLETE', payload: { userId, taskId } })
             : null
         default:
@@ -199,40 +196,51 @@ const TaskSidebar = ({ tasks }) => (
     padding="1rem"
   >
     {_.map(tasks, (task) => (
-      <TaskTile key={task.id} task={task} taskStatus={TASK_STATUS.todo} />
+      <TaskTile key={task.id} task={task} taskStatus={TASK_STATUS.incomplete} />
     ))}
     <Separator variant="horizontal" />
     <Dropzone
       accepts={TASK_STATUS.complete}
+      borderColor="lightgrey"
       id="delete-completed-dropzone"
-      type={DROPZONE_TYPE.destroy}
+      dropzoneType={DROPZONE_TYPE.destroy}
     >
       <Trash color="lightgrey" size={18} />
     </Dropzone>
   </Stack>
 )
 
-const DROPZONE_TYPE = {
-  create: 1,
-  destroy: 2,
-  neutral: 3,
-}
-
 const Dropzone = ({
   accepts,
+  borderColor = 'whitesmoke',
   children,
+  dropzoneData,
   id,
   minHeight = '3.25rem',
   minWidth = '3.25rem',
-  type = DROPZONE_TYPE.neutral,
+  dropzoneType = DROPZONE_TYPE.neutral,
+  validateCanDrop = ({ draggable, droppable }) => true,
 }) => {
-  const { isOver, setNodeRef } = useDroppable({
+  const { active, isOver, over, setNodeRef } = useDroppable({
     id,
-    data: { accepts },
+    data: { accepts, ...dropzoneData },
   })
 
-  const getIsOverColor = () => {
-    switch (type) {
+  // It feels like Dropzone it pobably doing too much here
+  // Not sure it should be passing `draggable` back up in
+  // validateCanDrop. It's also all just for rendering a
+  // different color border. I have a hunch that dnd-kit
+  // may provide a first class way to validate if a draggable
+  // can be dropped or not.
+
+  const draggable = active?.data?.current
+  const droppable = over?.data?.current
+
+  const doesAccept = _(accepts).includes(draggable?.type)
+  const canDrop = doesAccept && validateCanDrop({ draggable, droppable })
+
+  const getActiveBorderColor = () => {
+    switch (dropzoneType) {
       case DROPZONE_TYPE.neutral:
         return 'separator'
       case DROPZONE_TYPE.create:
@@ -249,12 +257,11 @@ const Dropzone = ({
       alignment="center"
       borderRadius="6px"
       css={{
-        borderColor: isOver ? getIsOverColor() : 'transparent',
+        borderColor: isOver && canDrop ? getActiveBorderColor() : borderColor,
         borderStyle: 'dashed',
         borderWidth: '2px',
         minHeight,
         minWidth,
-        width: '100%',
       }}
       distribution="center"
       innerRef={setNodeRef}
@@ -291,7 +298,7 @@ const TaskTile = ({ task, taskStatus, userId }) => {
       {...listeners}
       {...attributes}
     >
-      <p css={{ fontSize: '1.5rem' }}>{task.icon}</p>
+      <Text size={6}>{task.icon}</Text>
     </Stack>
   )
 }
@@ -311,13 +318,11 @@ const BodyGrid = ({ children }) => (
 )
 
 const UserContainer = ({ user }) => {
-  const { isOver, setNodeRef } = useDroppable({
-    id: `droppable-user-id-${user.id}`,
-    data: {
-      accepts: TASK_STATUS.todo,
-      userId: user.id,
-    },
-  })
+  const tasksIdsCompleted = user.taskIdsCompleted
+  const tasksIdsRemaining = _(TASKS)
+    .map('id')
+    .difference(tasksIdsCompleted)
+    .value()
 
   return (
     <Stack
@@ -327,18 +332,13 @@ const UserContainer = ({ user }) => {
       boxShadow={0}
       distribution="space-between"
       gap="1rem"
-      innerRef={setNodeRef}
       padding="1rem"
-      css={{
-        borderColor: isOver ? 'darkseagreen' : 'transparent',
-        borderWidth: '2px',
-        borderStyle: 'solid',
-        width: '100%',
-      }}
     >
-      <p style={{ fontWeight: 500 }}>{user.name}</p>
+      <Text font="sans" weight="bold" size={2}>
+        {user.name}
+      </Text>
       <Stack axis="horizontal" gap="1rem" height="3rem">
-        {_.map(user.tasksCompleted, (taskId) => (
+        {_.map(tasksIdsCompleted, (taskId) => (
           <TaskTile
             userId={user.id}
             key={taskId}
@@ -346,6 +346,19 @@ const UserContainer = ({ user }) => {
             taskStatus={TASK_STATUS.complete}
           />
         ))}
+        {tasksIdsRemaining.length ? (
+          <Dropzone
+            accepts={TASK_STATUS.incomplete}
+            dropzoneData={{ userId: user.id }}
+            dropzoneType={DROPZONE_TYPE.create}
+            id={`user-id-${user.id}-task-dropzone`}
+            validateCanDrop={({ draggable, droppable }) =>
+              !_.includes(tasksIdsCompleted, draggable.taskId)
+            }
+          >
+            <Plus color="lightgrey" size={18} />
+          </Dropzone>
+        ) : null}
       </Stack>
     </Stack>
   )
