@@ -1,5 +1,6 @@
 export { Box } from './Box'
 export { Button } from './Button'
+export { Draggable } from './Draggable'
 export { Dropdown } from './Dropdown'
 export { Grid } from './Grid'
 export { Separator } from './Separator'
