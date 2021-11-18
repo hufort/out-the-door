@@ -11,6 +11,7 @@ export const TASKS = {
   2: { id: 2, title: 'Get dressed', icon: '👕' },
   3: { id: 3, title: 'Backpack', icon: '🎒' },
   4: { id: 4, title: 'Water bottle', icon: '💧' },
-  5: { id: 5, title: 'Lunch', icon: '🍱' },
-  6: { id: 6, title: 'Shoes', icon: '👟' },
+  5: { id: 5, title: 'Lunch', icon: '🥪' },
+  6: { id: 6, title: 'Mask', icon: '😷' },
+  7: { id: 7, title: 'Shoes', icon: '👟' },
 }
