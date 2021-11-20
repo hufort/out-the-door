@@ -11,8 +11,8 @@ export const Draggable = ({ children, data = {}, id, ...props }) => {
     })
 
   const css = {
-    transform: CSS.Translate.toString(transform),
     cursor: isDragging ? 'grabbing' : 'grab',
+    transform: CSS.Translate.toString(transform),
   }
 
   return (
