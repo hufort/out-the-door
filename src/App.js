@@ -1,13 +1,21 @@
 import React, { useEffect, useReducer } from 'react'
 import _ from 'lodash'
 import { Check, Plus, Trash, UserPlus } from 'react-feather'
-import { Button, Dropdown, Grid, Separator, Stack, Text } from './components'
+import {
+  Box,
+  Button,
+  Draggable,
+  Dropdown,
+  Grid,
+  Separator,
+  Stack,
+  Text,
+} from './components'
 import { fetchUsers, storeUsers } from './api'
 import { DROPZONE_TYPE, TASK_STATUS, TASKS } from './constants'
 
 // DND
-import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core'
-import { CSS } from '@dnd-kit/utilities'
+import { DndContext, useDroppable } from '@dnd-kit/core'
 
 // const makeDate = () => {
 //   const now = new Date()
@@ -196,7 +204,11 @@ const TaskSidebar = ({ tasks }) => (
     padding="1rem"
   >
     {_.map(tasks, (task) => (
-      <TaskTile key={task.id} task={task} taskStatus={TASK_STATUS.incomplete} />
+      <TaskTileDraggable
+        key={task.id}
+        task={task}
+        taskStatus={TASK_STATUS.incomplete}
+      />
     ))}
     <Separator variant="horizontal" />
     <Dropzone
@@ -271,35 +283,42 @@ const Dropzone = ({
   )
 }
 
-const TaskTile = ({ task, taskStatus, userId }) => {
+const TaskTileDraggable = ({ task, taskStatus, userId }) => {
   const id = `${userId ? `user-${userId}-` : ''}draggable-task-id-${task.id}`
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id,
-    data: { taskId: task.id, type: taskStatus, userId },
-  })
-
-  const TaskTile = {
-    transform: CSS.Translate.toString(transform),
-  }
+  const data = { taskId: task.id, type: taskStatus, userId }
 
   return (
-    <Stack
-      alignment="center"
-      bg="white"
-      borderRadius="6px"
-      boxShadow={2}
-      css={TaskTile}
-      distribution="center"
-      height="3rem"
-      innerRef={setNodeRef}
-      key={task.id}
-      width="3rem"
-      cursor="grab"
-      {...listeners}
-      {...attributes}
+    <Draggable data={data} id={id}>
+      <TaskTile task={task} />
+    </Draggable>
+  )
+}
+
+const TaskTile = ({ task, isDragging }) => {
+  return (
+    <Box
+      css={{
+        transform: isDragging ? 'translateY(2px) rotate(2deg)' : undefined,
+        transition: 'transform 50ms',
+      }}
     >
-      <Text size={6}>{task.icon}</Text>
-    </Stack>
+      <Stack
+        alignment="center"
+        bg="white"
+        borderRadius="6px"
+        boxShadow={isDragging ? 4 : 2}
+        css={{
+          transform: isDragging ? ' scale(1.1)' : undefined,
+          transition: 'transform 250ms',
+        }}
+        distribution="center"
+        height="3rem"
+        key={task.id}
+        width="3rem"
+      >
+        <Text size={6}>{task.icon}</Text>
+      </Stack>
+    </Box>
   )
 }
 
@@ -339,7 +358,7 @@ const UserContainer = ({ user }) => {
       </Text>
       <Stack axis="horizontal" gap="1rem" height="3rem">
         {_.map(tasksIdsCompleted, (taskId) => (
-          <TaskTile
+          <TaskTileDraggable
             userId={user.id}
             key={taskId}
             task={TASKS[taskId]}
