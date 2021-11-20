@@ -2,6 +2,7 @@ import React, { useEffect, useReducer } from 'react'
 import _ from 'lodash'
 import { Check, Plus, Trash, UserPlus } from 'react-feather'
 import {
+  Box,
   Button,
   Draggable,
   Dropdown,
@@ -295,22 +296,29 @@ const TaskTileDraggable = ({ task, taskStatus, userId }) => {
 
 const TaskTile = ({ task, isDragging }) => {
   return (
-    <Stack
-      alignment="center"
-      bg="white"
-      borderRadius="6px"
-      boxShadow={isDragging ? 4 : 2}
+    <Box
       css={{
-        transform: isDragging ? ' scale(1.1)' : undefined,
-        transition: 'transform 100ms',
+        transform: isDragging ? 'translateY(2px) rotate(2deg)' : undefined,
+        transition: 'transform 50ms',
       }}
-      distribution="center"
-      height="3rem"
-      key={task.id}
-      width="3rem"
     >
-      <Text size={6}>{task.icon}</Text>
-    </Stack>
+      <Stack
+        alignment="center"
+        bg="white"
+        borderRadius="6px"
+        boxShadow={isDragging ? 4 : 2}
+        css={{
+          transform: isDragging ? ' scale(1.1)' : undefined,
+          transition: 'transform 250ms',
+        }}
+        distribution="center"
+        height="3rem"
+        key={task.id}
+        width="3rem"
+      >
+        <Text size={6}>{task.icon}</Text>
+      </Stack>
+    </Box>
   )
 }
 
