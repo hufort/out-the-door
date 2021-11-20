@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { cloneElement } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { Box } from '.'
@@ -23,7 +23,7 @@ export const Draggable = ({ children, data = {}, id, ...props }) => {
       {...listeners}
       {...attributes}
     >
-      {children}
+      {cloneElement(children, { isDragging })}
     </Box>
   )
 }
