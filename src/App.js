@@ -14,8 +14,7 @@ import { fetchUsers, storeUsers } from './api'
 import { DROPZONE_TYPE, TASK_STATUS, TASKS } from './constants'
 
 // DND
-import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core'
-import { CSS } from '@dnd-kit/utilities'
+import { DndContext, useDroppable } from '@dnd-kit/core'
 
 // const makeDate = () => {
 //   const now = new Date()
@@ -294,13 +293,17 @@ const TaskTileDraggable = ({ task, taskStatus, userId }) => {
   )
 }
 
-const TaskTile = ({ task }) => {
+const TaskTile = ({ task, isDragging }) => {
   return (
     <Stack
       alignment="center"
       bg="white"
       borderRadius="6px"
-      boxShadow={2}
+      boxShadow={isDragging ? 4 : 2}
+      css={{
+        transform: isDragging ? ' scale(1.1)' : undefined,
+        transition: 'transform 100ms',
+      }}
       distribution="center"
       height="3rem"
       key={task.id}
