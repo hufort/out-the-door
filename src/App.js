@@ -11,19 +11,11 @@ import {
   Stack,
   Text,
 } from './components'
-import { getUsers, setUsers } from './api'
+import { getUsers, setUsers, makeToday, getToday, setToday } from './api'
 import { DROPZONE_TYPE, TASK_STATUS, TASKS } from './constants'
 
 // DND
 import { DndContext, useDroppable } from '@dnd-kit/core'
-
-// const makeDate = () => {
-//   const now = new Date()
-//   const m = now.getMonth()
-//   const d = now.getDate()
-//   const y = now.getFullYear()
-//   return `${m}${d}${y}`
-// }
 
 const reducer = (state, action) => {
   let taskId, userId, currentUser
@@ -40,7 +32,7 @@ const reducer = (state, action) => {
         id,
         taskIdsCompleted: [],
         points: 0,
-        dayCompleted: false,
+        todayCompleted: false,
       }
       return { ...state, name: '', users }
     case 'LOAD_USERS':
@@ -66,6 +58,12 @@ const reducer = (state, action) => {
       userId = action.payload.userId
       state.users[userId].points += 1
       return { ...state }
+    case 'RESET_USERS_TODAY':
+      _.forEach(state.users, (user) => {
+        user.taskIdsCompleted = []
+        user.todayCompleted = false
+      })
+      return { ...state }
     default:
       return state
   }
@@ -74,14 +72,26 @@ const reducer = (state, action) => {
 function App() {
   const [state, dispatch] = useReducer(reducer, { name: '', users: {} })
 
+  // update users store on state change
   useEffect(() => {
     if (_.size(state.users)) setUsers(state.users)
   }, [state])
 
+  // load users
   useEffect(() => {
     const existingUsers = getUsers()
     if (existingUsers) {
       dispatch({ type: 'LOAD_USERS', payload: existingUsers })
+    }
+  }, [])
+
+  // reset user tasks completed and today date  on new day
+  useEffect(() => {
+    const today = makeToday()
+    const todayStore = getToday()
+    if (today !== todayStore) {
+      dispatch({ type: 'RESET_USERS_TODAY' })
+      setToday()
     }
   }, [])
 
