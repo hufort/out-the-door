@@ -1,7 +1,4 @@
-const STORE_KEYS = {
-  users: 'otd-users',
-  today: 'otd-today',
-}
+import { STORE_KEYS } from '../constants'
 
 const set = (key, value) => localStorage.setItem(key, JSON.stringify(value))
 

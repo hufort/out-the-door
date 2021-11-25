@@ -1,4 +1,5 @@
-import { set, get, STORE_KEYS } from '.'
+import { set, get } from '.'
+import { STORE_KEYS } from '../constants'
 
 const getUsers = () => get(STORE_KEYS.users)
 
