@@ -1,1 +1,2 @@
-export { fetchUsers, storeUsers } from './users'
+export { set, get, STORE_KEYS } from './store'
+export { getUsers, setUsers } from './users'

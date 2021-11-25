@@ -11,7 +11,7 @@ import {
   Stack,
   Text,
 } from './components'
-import { fetchUsers, storeUsers } from './api'
+import { getUsers, setUsers } from './api'
 import { DROPZONE_TYPE, TASK_STATUS, TASKS } from './constants'
 
 // DND
@@ -35,7 +35,13 @@ const reducer = (state, action) => {
       const { users, name } = state
       const maxId = _(users).map('id').orderBy().last() || 0
       const id = maxId + 1
-      users[id] = { name: name, id, taskIdsCompleted: [], points: 0 }
+      users[id] = {
+        name: name,
+        id,
+        taskIdsCompleted: [],
+        points: 0,
+        dayCompleted: false,
+      }
       return { ...state, name: '', users }
     case 'LOAD_USERS':
       return { ...state, users: action.payload }
@@ -69,11 +75,11 @@ function App() {
   const [state, dispatch] = useReducer(reducer, { name: '', users: {} })
 
   useEffect(() => {
-    if (_.size(state.users)) storeUsers(state.users)
+    if (_.size(state.users)) setUsers(state.users)
   }, [state])
 
   useEffect(() => {
-    const existingUsers = fetchUsers()
+    const existingUsers = getUsers()
     if (existingUsers) {
       dispatch({ type: 'LOAD_USERS', payload: existingUsers })
     }
@@ -81,7 +87,7 @@ function App() {
 
   // const handleDeleteUser = (id) => {
   //   const usersUpdate = _.filter(users, (user) => user.id !== id)
-  //   storeUsers(usersUpdate)
+  //   setUsers(usersUpdate)
   //   setUsers(usersUpdate)
   // }
 

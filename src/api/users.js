@@ -1,8 +1,7 @@
-const USERS_KEY = 'otd-users'
+import { set, get, STORE_KEYS } from '.'
 
-const fetchUsers = () => JSON.parse(localStorage.getItem(USERS_KEY))
+const getUsers = () => get(STORE_KEYS.users)
 
-const storeUsers = (users) =>
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+const setUsers = (users) => set(STORE_KEYS.users, users)
 
-export { fetchUsers, storeUsers }
+export { getUsers, setUsers }
