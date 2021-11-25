@@ -1,6 +1,6 @@
 const STORE_KEYS = {
   users: 'otd-users',
-  date: 'otd-date',
+  today: 'otd-today',
 }
 
 const set = (key, value) => localStorage.setItem(key, JSON.stringify(value))
