@@ -35,11 +35,11 @@ const reducer = (state, action) => {
       const { users, name } = state
       const maxId = _(users).map('id').orderBy().last() || 0
       const id = maxId + 1
-      users[id] = { name: name, id, taskIdsCompleted: [] }
+      users[id] = { name: name, id, taskIdsCompleted: [], points: 0 }
       return { ...state, name: '', users }
     case 'LOAD_USERS':
       return { ...state, users: action.payload }
-    case 'MARK_COMPLETE':
+    case 'MARK_TASK_COMPLETE':
       taskId = action.payload.taskId
       userId = action.payload.userId
       currentUser = state.users[userId]
@@ -47,7 +47,7 @@ const reducer = (state, action) => {
         taskId,
       ])
       return { ...state }
-    case 'MARK_INCOMPLETE':
+    case 'MARK_TASK_INCOMPLETE':
       taskId = action.payload.taskId
       userId = action.payload.userId
       currentUser = state.users[userId]
@@ -55,6 +55,10 @@ const reducer = (state, action) => {
         currentUser.taskIdsCompleted,
         taskId
       )
+      return { ...state }
+    case 'MARK_ALL_COMPLETE':
+      userId = action.payload.userId
+      state.users[userId].points += 1
       return { ...state }
     default:
       return state
@@ -91,17 +95,37 @@ function App() {
         case TASK_STATUS.incomplete:
           userId = over.data.current.userId
           taskId = active.data.current.taskId
-          if (!userId || !taskId) return
-          return _.includes(state.users[userId].taskIdsCompleted, taskId)
-            ? null
-            : dispatch({ type: 'MARK_COMPLETE', payload: { userId, taskId } })
+          if (
+            !userId ||
+            !taskId ||
+            _.includes(state.users[userId].taskIdsCompleted, taskId)
+          ) {
+            break
+          }
+
+          dispatch({
+            type: 'MARK_TASK_COMPLETE',
+            payload: { userId, taskId },
+          })
+
+          if (
+            state.users[userId].taskIdsCompleted.length ===
+            Object.keys(TASKS).length
+          ) {
+            dispatch({ type: 'MARK_ALL_COMPLETE', payload: { userId } })
+          }
+          break
         case TASK_STATUS.complete:
           userId = active.data.current.userId
           taskId = active.data.current.taskId
-          if (!userId || !taskId) return
-          return _.includes(state.users[userId].taskIdsCompleted, taskId)
-            ? dispatch({ type: 'MARK_INCOMPLETE', payload: { userId, taskId } })
-            : null
+          if (!userId || !taskId) break
+          if (_.includes(state.users[userId].taskIdsCompleted, taskId)) {
+            dispatch({
+              type: 'MARK_TASK_INCOMPLETE',
+              payload: { userId, taskId },
+            })
+          }
+          break
         default:
           console.warn('Action not accepted')
       }
@@ -267,14 +291,14 @@ const Dropzone = ({
   return (
     <Stack
       alignment="center"
+      borderColor={isOver && canDrop ? getActiveBorderColor() : borderColor}
       borderRadius="6px"
+      borderStyle="dashed"
       css={{
-        borderColor: isOver && canDrop ? getActiveBorderColor() : borderColor,
-        borderStyle: 'dashed',
-        borderWidth: '2px',
         minHeight,
         minWidth,
       }}
+      borderWidth="2px"
       distribution="center"
       innerRef={setNodeRef}
     >
@@ -353,9 +377,22 @@ const UserContainer = ({ user }) => {
       gap="1rem"
       padding="1rem"
     >
-      <Text font="sans" weight="bold" size={2}>
-        {user.name}
-      </Text>
+      <Stack alignment="center" axis="horizontal" gap="4px">
+        <Text font="sans" size={2} weight="bold">
+          {user.name}
+        </Text>
+        <Stack
+          alignment="center"
+          distribution="center"
+          padding=".25rem .5rem"
+          backgroundColor="blue"
+          borderRadius={3}
+        >
+          <Text font="mono" color="white" size={0}>
+            {user.points}
+          </Text>
+        </Stack>
+      </Stack>
       <Stack axis="horizontal" gap="1rem" height="3rem">
         {_.map(tasksIdsCompleted, (taskId) => (
           <TaskTileDraggable
