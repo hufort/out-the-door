@@ -55,9 +55,13 @@ const reducer = (state, action) => {
         taskId
       )
       return { ...state }
-    case 'ADD_USER_POINT':
+    case 'INCREMENT_USER_POINT':
       userId = action.payload.userId
       state.users[userId].points += 1
+      return { ...state }
+    case 'DECREMENT_USER_POINT':
+      userId = action.payload.userId
+      state.users[userId].points -= 1
       return { ...state }
     case 'RESET_USERS_TODAY':
       _.forEach(state.users, (user) => {
@@ -122,7 +126,7 @@ function App() {
           })
 
           if (validateAllTasksComplete(user)) {
-            dispatch({ type: 'ADD_USER_POINT', payload: { userId } })
+            dispatch({ type: 'INCREMENT_USER_POINT', payload: { userId } })
           }
           break
         case TASK_STATUS.complete:
