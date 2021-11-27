@@ -55,6 +55,14 @@ const reducer = (state, action) => {
         taskId
       )
       return { ...state }
+    case 'MARK_USER_TODAY_COMPLETE':
+      userId = action.payload.userId
+      state.users[userId].todayCompleted = true
+      return { ...state }
+    case 'MARK_USER_TODAY_INCOMPLETE':
+      userId = action.payload.userId
+      state.users[userId].todayCompleted = false
+      return { ...state }
     case 'INCREMENT_USER_POINT':
       userId = action.payload.userId
       state.users[userId].points += 1
@@ -126,18 +134,27 @@ function App() {
           })
 
           if (validateAllTasksComplete(user)) {
+            dispatch({ type: 'MARK_USER_TODAY_COMPLETE', payload: { userId } })
             dispatch({ type: 'INCREMENT_USER_POINT', payload: { userId } })
           }
           break
         case TASK_STATUS.complete:
           userId = active.data.current.userId
           taskId = active.data.current.taskId
+          user = state.users[userId]
           if (!userId || !taskId) break
-          if (_.includes(state.users[userId].taskIdsCompleted, taskId)) {
+          if (_.includes(user.taskIdsCompleted, taskId)) {
             dispatch({
               type: 'MARK_TASK_INCOMPLETE',
               payload: { userId, taskId },
             })
+            if (user.todayCompleted) {
+              dispatch({
+                type: 'MARK_USER_TODAY_INCOMPLETE',
+                payload: { userId },
+              })
+              dispatch({ type: 'DECREMENT_USER_POINT', payload: { userId } })
+            }
           }
           break
         default:
