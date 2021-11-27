@@ -4,6 +4,9 @@ import { TASKS } from '../constants'
 const getRemainingTaskIds = (user) =>
   _(TASKS).map('id').difference(user.taskIdsCompleted).value()
 
-const validateAllTasksComplete = (user) => _.isEmpty(getRemainingTaskIds(user))
+const userCompletedAllTasks = (user) => _.isEmpty(getRemainingTaskIds(user))
 
-export { getRemainingTaskIds, validateAllTasksComplete }
+const userCompletedTask = (user, taskId) =>
+  _.includes(user.taskIdsCompleted, taskId)
+
+export { getRemainingTaskIds, userCompletedAllTasks, userCompletedTask }

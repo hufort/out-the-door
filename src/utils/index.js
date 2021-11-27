@@ -1,1 +1,1 @@
-export { getRemainingTaskIds, validateAllTasksComplete } from './userTasks'
+export { getRemainingTaskIds, userCompletedAllTasks } from './userTasks'

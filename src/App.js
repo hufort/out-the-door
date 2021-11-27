@@ -12,7 +12,11 @@ import {
   Text,
 } from './components'
 import { getUsers, setUsers, makeToday, getToday, setToday } from './api'
-import { getRemainingTaskIds, validateAllTasksComplete } from './utils'
+import {
+  getRemainingTaskIds,
+  userCompletedAllTasks,
+  userCompletedTask,
+} from './utils'
 import { DROPZONE_TYPE, TASK_STATUS, TASKS } from './constants'
 
 // DND
@@ -126,14 +130,12 @@ function App() {
           userId = over.data.current.userId
           taskId = active.data.current.taskId
           user = state.users[userId]
-          if (_.includes(user.taskIdsCompleted, taskId)) break
-
+          if (userCompletedTask(user, taskId)) break
           dispatch({
             type: 'MARK_TASK_COMPLETE',
             payload: { userId, taskId },
           })
-
-          if (validateAllTasksComplete(user)) {
+          if (userCompletedAllTasks(user)) {
             dispatch({ type: 'MARK_USER_TODAY_COMPLETE', payload: { userId } })
             dispatch({ type: 'INCREMENT_USER_POINT', payload: { userId } })
           }
@@ -143,7 +145,7 @@ function App() {
           taskId = active.data.current.taskId
           user = state.users[userId]
           if (!userId || !taskId) break
-          if (_.includes(user.taskIdsCompleted, taskId)) {
+          if (userCompletedTask(user, taskId)) {
             dispatch({
               type: 'MARK_TASK_INCOMPLETE',
               payload: { userId, taskId },
