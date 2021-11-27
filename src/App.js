@@ -12,6 +12,7 @@ import {
   Text,
 } from './components'
 import { getUsers, setUsers, makeToday, getToday, setToday } from './api'
+import { getRemainingTaskIds, validateAllTasksComplete } from './utils'
 import { DROPZONE_TYPE, TASK_STATUS, TASKS } from './constants'
 
 // DND
@@ -54,7 +55,7 @@ const reducer = (state, action) => {
         taskId
       )
       return { ...state }
-    case 'MARK_ALL_COMPLETE':
+    case 'ADD_USER_POINT':
       userId = action.payload.userId
       state.users[userId].points += 1
       return { ...state }
@@ -107,28 +108,21 @@ function App() {
       const accepts = over.data.current.accepts
       let userId
       let taskId
+      let user
       switch (accepts) {
         case TASK_STATUS.incomplete:
           userId = over.data.current.userId
           taskId = active.data.current.taskId
-          if (
-            !userId ||
-            !taskId ||
-            _.includes(state.users[userId].taskIdsCompleted, taskId)
-          ) {
-            break
-          }
+          user = state.users[userId]
+          if (_.includes(user.taskIdsCompleted, taskId)) break
 
           dispatch({
             type: 'MARK_TASK_COMPLETE',
             payload: { userId, taskId },
           })
 
-          if (
-            state.users[userId].taskIdsCompleted.length ===
-            Object.keys(TASKS).length
-          ) {
-            dispatch({ type: 'MARK_ALL_COMPLETE', payload: { userId } })
+          if (validateAllTasksComplete(user)) {
+            dispatch({ type: 'ADD_USER_POINT', payload: { userId } })
           }
           break
         case TASK_STATUS.complete:
@@ -377,11 +371,8 @@ const BodyGrid = ({ children }) => (
 )
 
 const UserContainer = ({ user }) => {
-  const tasksIdsCompleted = user.taskIdsCompleted
-  const tasksIdsRemaining = _(TASKS)
-    .map('id')
-    .difference(tasksIdsCompleted)
-    .value()
+  const taskIdsCompleted = user.taskIdsCompleted
+  const taskIdsRemaining = getRemainingTaskIds(user)
 
   return (
     <Stack
@@ -410,7 +401,7 @@ const UserContainer = ({ user }) => {
         </Stack>
       </Stack>
       <Stack axis="horizontal" gap="1rem" height="3rem">
-        {_.map(tasksIdsCompleted, (taskId) => (
+        {_.map(taskIdsCompleted, (taskId) => (
           <TaskTileDraggable
             userId={user.id}
             key={taskId}
@@ -418,14 +409,14 @@ const UserContainer = ({ user }) => {
             taskStatus={TASK_STATUS.complete}
           />
         ))}
-        {tasksIdsRemaining.length ? (
+        {taskIdsRemaining.length ? (
           <Dropzone
             accepts={TASK_STATUS.incomplete}
             dropzoneData={{ userId: user.id }}
             dropzoneType={DROPZONE_TYPE.create}
             id={`user-id-${user.id}-task-dropzone`}
             validateCanDrop={({ draggable, droppable }) =>
-              !_.includes(tasksIdsCompleted, draggable.taskId)
+              !_.includes(taskIdsCompleted, draggable.taskId)
             }
           >
             <Plus color="lightgrey" size={18} />
