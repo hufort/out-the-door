@@ -30,8 +30,8 @@ const reducer = (state, action) => {
       return { ...state, ...action.payload }
     case 'CREATE_USER':
       const { users, name } = state
-      const maxId = _(users).map('id').orderBy().last() || 0
-      const id = maxId + 1
+      const prevId = _(users).map('id').orderBy().last() || 0
+      const id = prevId + 1
       users[id] = {
         name: name,
         id,
