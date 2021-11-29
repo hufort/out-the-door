@@ -1,1 +1,5 @@
-export { getRemainingTaskIds, userCompletedAllTasks } from './userTasks'
+export {
+  getRemainingTaskIds,
+  userCompletedAllTasks,
+  userCompletedTask,
+} from './userTasks'

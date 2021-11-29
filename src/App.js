@@ -67,13 +67,15 @@ const reducer = (state, action) => {
       userId = action.payload.userId
       state.users[userId].todayCompleted = false
       return { ...state }
-    case 'INCREMENT_USER_POINT':
+    case 'INCREMENT_USER_POINTS':
       userId = action.payload.userId
-      state.users[userId].points += 1
+      const incerementBy = _.get(action, 'payload.ammount', 1)
+      state.users[userId].points += incerementBy
       return { ...state }
-    case 'DECREMENT_USER_POINT':
+    case 'DECREMENT_USER_POINTS':
       userId = action.payload.userId
-      state.users[userId].points -= 1
+      const decerementBy = _.get(action, 'payload.ammount', 1)
+      state.users[userId].points -= decerementBy
       return { ...state }
     case 'RESET_USERS_TODAY':
       _.forEach(state.users, (user) => {
@@ -137,7 +139,7 @@ function App() {
           })
           if (userCompletedAllTasks(user)) {
             dispatch({ type: 'MARK_USER_TODAY_COMPLETE', payload: { userId } })
-            dispatch({ type: 'INCREMENT_USER_POINT', payload: { userId } })
+            dispatch({ type: 'INCREMENT_USER_POINTS', payload: { userId } })
           }
           break
         case TASK_STATUS.complete:
@@ -155,7 +157,7 @@ function App() {
                 type: 'MARK_USER_TODAY_INCOMPLETE',
                 payload: { userId },
               })
-              dispatch({ type: 'DECREMENT_USER_POINT', payload: { userId } })
+              dispatch({ type: 'DECREMENT_USER_POINTS', payload: { userId } })
             }
           }
           break
@@ -224,7 +226,12 @@ function App() {
           <TaskSidebar tasks={TASKS} />
           <BodyGrid>
             {_.map(state.users, (user) => (
-              <UserContainer key={user.id} user={user} users={state.users} />
+              <UserContainer
+                dispatch={dispatch}
+                key={user.id}
+                user={user}
+                users={state.users}
+              />
             ))}
           </BodyGrid>
         </Stack>
@@ -393,7 +400,7 @@ const BodyGrid = ({ children }) => (
   </Grid>
 )
 
-const UserContainer = ({ user }) => {
+const UserContainer = ({ user, dispatch }) => {
   const taskIdsCompleted = user.taskIdsCompleted
   const taskIdsRemaining = getRemainingTaskIds(user)
 
@@ -411,17 +418,42 @@ const UserContainer = ({ user }) => {
         <Text font="sans" size={2} weight="bold">
           {user.name}
         </Text>
-        <Stack
-          alignment="center"
-          distribution="center"
-          padding=".25rem .5rem"
-          backgroundColor="blue"
-          borderRadius={3}
+        <Dropdown
+          placement="bottom-start"
+          title={
+            <Text font="mono" color="white" size={0}>
+              {user.points}
+            </Text>
+          }
         >
-          <Text font="mono" color="white" size={0}>
-            {user.points}
-          </Text>
-        </Stack>
+          <form
+            id="points"
+            onSubmit={(e) => {
+              e.preventDefault()
+              const form = e.target
+              const data = new FormData(e.target)
+              const points = data.get('points')
+              dispatch({
+                type: 'DECREMENT_USER_POINTS',
+                payload: { userId: user.id, ammount: points },
+              })
+              form.reset()
+            }}
+          >
+            <Stack padding={2} gap={1} alignment="end">
+              <Text size={2}>How many points do you want to cash in?</Text>
+              <input
+                type="number"
+                name="points"
+                step={1}
+                min={0}
+                max={user.points}
+                css={{ alignSelf: 'center', minWidth: '50px' }}
+              />
+              <Button type="submit">Cash in</Button>
+            </Stack>
+          </form>
+        </Dropdown>
       </Stack>
       <Stack axis="horizontal" gap="1rem" height="3rem">
         {_.map(taskIdsCompleted, (taskId) => (
