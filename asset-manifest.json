@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/out-the-door/static/css/main.ea1cea19.chunk.css",
+    "main.js": "/out-the-door/static/js/main.19131a00.chunk.js",
+    "main.js.map": "/out-the-door/static/js/main.19131a00.chunk.js.map",
+    "runtime-main.js": "/out-the-door/static/js/runtime-main.c1021b78.js",
+    "runtime-main.js.map": "/out-the-door/static/js/runtime-main.c1021b78.js.map",
+    "static/js/2.2c12e7b1.chunk.js": "/out-the-door/static/js/2.2c12e7b1.chunk.js",
+    "static/js/2.2c12e7b1.chunk.js.map": "/out-the-door/static/js/2.2c12e7b1.chunk.js.map",
+    "static/js/3.1991377d.chunk.js": "/out-the-door/static/js/3.1991377d.chunk.js",
+    "static/js/3.1991377d.chunk.js.map": "/out-the-door/static/js/3.1991377d.chunk.js.map",
+    "index.html": "/out-the-door/index.html",
+    "static/css/main.ea1cea19.chunk.css.map": "/out-the-door/static/css/main.ea1cea19.chunk.css.map",
+    "static/js/2.2c12e7b1.chunk.js.LICENSE.txt": "/out-the-door/static/js/2.2c12e7b1.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.c1021b78.js",
+    "static/js/2.2c12e7b1.chunk.js",
+    "static/css/main.ea1cea19.chunk.css",
+    "static/js/main.19131a00.chunk.js"
+  ]
+}
