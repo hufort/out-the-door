@@ -6,7 +6,7 @@ export const Separator = styled(Box)(
   system({
     color: {
       property: 'backgroundColor',
-      scale: 'color',
+      scale: 'colors',
     },
   }),
   variant({

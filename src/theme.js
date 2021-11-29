@@ -22,10 +22,10 @@ const theme = {
     'rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px',
     'rgba(0, 0, 0, 0.25) 0px 25px 50px -12px',
   ],
-  color: {
+  colors: {
     blue: '#4682BF',
     green: '#556B2F',
-    orange: 'FF7F50',
+    orange: '#FF7F50',
     red: '#FF6347',
     separator: '#D9D9D9',
     text: '#3D3D3D',

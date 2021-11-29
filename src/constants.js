@@ -4,6 +4,11 @@ export const DROPZONE_TYPE = {
   neutral: 3,
 }
 
+export const STORE_KEYS = {
+  users: 'otd-users',
+  today: 'otd-today',
+}
+
 export const TASK_STATUS = { complete: 'complete', incomplete: 'incomplete' }
 
 export const TASKS = {
