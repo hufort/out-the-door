@@ -1,4 +1,5 @@
 {
+  "homepage": "https://hufort.github.io/out-the-door",
   "name": "out-the-door",
   "version": "0.1.0",
   "private": true,
@@ -11,6 +12,7 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "customize-cra": "^1.0.0",
+    "gh-pages": "^3.2.3",
     "lodash": "^4.17.21",
     "react": "^17.0.2",
     "react-app-rewired": "^2.1.8",
@@ -22,10 +24,12 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-app-rewired start",
     "build": "react-app-rewired build",
+    "eject": "react-app-rewired eject",
+    "predeploy": "npm run build",
+    "start": "react-app-rewired start",
     "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject"
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
