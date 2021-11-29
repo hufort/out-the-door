@@ -79,6 +79,7 @@ const Menu = ({
         background: 'white',
         border: '1px solid lightgrey',
         borderRadius: '3px',
+        zIndex: 10,
         ...styles.popper,
       }}
       {...attributes.popper}
